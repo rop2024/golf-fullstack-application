@@ -1,15 +1,29 @@
-import express from "express";
+import express from 'express';
 import {
-  submitScore,
-  getUserScores,
-  getAllScores
-} from "../controllers/score.controller.js";
-import { authenticateUser } from "../middleware/auth.middleware.js";
+  addScore,
+  getMyScores,
+  getAllScoresController,
+  deleteScoreController,
+  getScoreStats,
+  bulkAddScores
+} from '../controllers/score.controller.js';
+import {
+  authenticateUser,
+  authorizeAdmin
+} from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-router.post("/submit", authenticateUser, submitScore);
-router.get("/my-scores", authenticateUser, getUserScores);
-router.get("/all", authenticateUser, getAllScores);
+// Protected routes (require authentication)
+router.post('/add', authenticateUser, addScore);
+router.get('/me', authenticateUser, getMyScores);
+router.delete('/:scoreId', authenticateUser, deleteScoreController);
+router.get('/stats', authenticateUser, getScoreStats);
+
+// Admin only routes
+router.get('/all', authenticateUser, authorizeAdmin, getAllScoresController);
+
+// Testing route (add multiple scores at once)
+router.post('/bulk', authenticateUser, bulkAddScores);
 
 export default router;
