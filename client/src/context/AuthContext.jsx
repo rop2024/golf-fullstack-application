@@ -52,10 +52,14 @@ export const AuthProvider = ({ children }) => {
           if (session?.user) {
             setSession(session);
             setUser(session.user);
+            // Store the access token for API calls
+            localStorage.setItem('token', session.access_token);
             await fetchUserProfile(session.user.id);
           } else {
             setSession(null);
             setUser(null);
+            // Ensure token is removed
+            localStorage.removeItem('token');
           }
           setLoading(false);
           clearLoadingTimeout();
@@ -89,6 +93,8 @@ export const AuthProvider = ({ children }) => {
             console.log('Setting user and session for:', session.user.id);
             setSession(session);
             setUser(session.user);
+            // Store the access token for API calls
+            localStorage.setItem('token', session.access_token);
 
             // Fetch user profile from profiles table
             await fetchUserProfile(session.user.id);
@@ -97,6 +103,8 @@ export const AuthProvider = ({ children }) => {
             console.log('Clearing user and session');
             setSession(null);
             setUser(null);
+            // Remove the token
+            localStorage.removeItem('token');
           }
         } catch (err) {
           console.error('Error in auth state change:', err);

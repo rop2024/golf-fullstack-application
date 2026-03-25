@@ -32,10 +32,10 @@ export const useSubscription = () => {
   }, []);
 
   // Upgrade subscription
-  const upgradeSubscription = useCallback(async (plan) => {
+  const upgradeSubscription = useCallback(async (plan, duration = 'monthly') => {
     setLoading(true);
     try {
-      const response = await api.post('/subscription/upgrade', { plan });
+      const response = await api.post('/subscription/upgrade', { plan, duration });
       setSubscription(response.data.subscription);
       setError(null);
       return { success: true, data: response.data };
@@ -63,6 +63,33 @@ export const useSubscription = () => {
     }
   }, []);
 
+  // Check if user can perform action
+  const canPerformAction = useCallback((action) => {
+    if (!subscription) return false;
+
+    const features = {
+      submit_score: subscription.subscription_status !== 'free',
+      enter_draw: subscription.subscription_status !== 'free',
+      view_stats: subscription.subscription_status !== 'free',
+      bulk_submit: subscription.subscription_status === 'premium' || subscription.subscription_status === 'pro',
+      api_access: subscription.subscription_status === 'pro'
+    };
+
+    return features[action] || false;
+  }, [subscription]);
+
+  // Get feature limit
+  const getFeatureLimit = useCallback((feature) => {
+    const limits = {
+      free: { maxScores: 5, maxDrawEntries: 1, prizeMultiplier: 1 },
+      premium: { maxScores: 20, maxDrawEntries: 5, prizeMultiplier: 2 },
+      pro: { maxScores: 50, maxDrawEntries: 10, prizeMultiplier: 5 }
+    };
+
+    const plan = subscription?.subscription_status || 'free';
+    return limits[plan][feature] || limits.free[feature];
+  }, [subscription]);
+
   // Initial load
   useEffect(() => {
     fetchSubscription();
@@ -75,10 +102,14 @@ export const useSubscription = () => {
     loading,
     error,
     isPremium: subscription?.subscription_status === 'premium' || subscription?.subscription_status === 'pro',
+    isPro: subscription?.subscription_status === 'pro',
     isFree: subscription?.subscription_status === 'free',
+    isActive: subscription?.subscription_status !== 'free',
     fetchSubscription,
     fetchBalance,
     upgradeSubscription,
-    cancelSubscription
+    cancelSubscription,
+    canPerformAction,
+    getFeatureLimit
   };
 };

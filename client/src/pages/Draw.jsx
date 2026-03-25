@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useDraw } from '../hooks/useDraw';
+import { useSubscription } from '../hooks/useSubscription';
 import NumberPicker from '../components/NumberPicker';
 import DrawCard from '../components/DrawCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import UpgradePrompt from '../components/UpgradePrompt';
 import { useNavigate } from 'react-router-dom';
 
 const Draw = () => {
@@ -22,6 +24,13 @@ const Draw = () => {
     fetchActiveDraw,
     fetchDraws
   } = useDraw();
+
+  const {
+    isActive,
+    isPremium,
+    getFeatureLimit,
+    canPerformAction
+  } = useSubscription();
 
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [selectedDrawId, setSelectedDrawId] = useState(null);
@@ -44,6 +53,11 @@ const Draw = () => {
   }, [user]);
 
   const handleEnterDraw = (drawId) => {
+    if (!isActive) {
+      alert('You need an active subscription to enter draws!');
+      navigate('/subscription');
+      return;
+    }
     setSelectedDrawId(drawId);
     setShowEntryForm(true);
   };
@@ -70,16 +84,12 @@ const Draw = () => {
     navigate(`/winners?drawId=${drawId}`);
   };
 
-  const handleExecuteDraw = (drawId) => {
-    if (window.confirm('Are you sure you want to execute this draw? This action cannot be undone.')) {
-      // This would call an admin API
-      alert('Draw execution would happen here (admin only)');
-    }
-  };
-
   if (authLoading) {
     return <LoadingSpinner fullScreen />;
   }
+
+  const maxEntries = getFeatureLimit('maxDrawEntries');
+  const canEnter = canPerformAction('enter_draw');
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -120,7 +130,9 @@ const Draw = () => {
               </button>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">Welcome, {user?.profile?.username || user?.email?.split('@')[0]}</span>
+              <span className="text-sm text-gray-700">
+                Plan: <span className="font-semibold capitalize">{isActive ? 'Premium' : 'Free'}</span>
+              </span>
             </div>
           </div>
         </div>
@@ -132,7 +144,11 @@ const Draw = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-3xl font-bold text-gray-900">Lottery Draw</h1>
             <p className="mt-2 text-sm text-gray-600">
-              Pick 5 numbers between 1-50 for a chance to win!
+              {canEnter ? (
+                `Pick 5 numbers between 1-50 for a chance to win! (${maxEntries} entries allowed per month)`
+              ) : (
+                'Upgrade to premium to participate in draws and win prizes!'
+              )}
             </p>
           </div>
         </header>
@@ -172,84 +188,91 @@ const Draw = () => {
             )}
 
             <div className="px-4 py-8 sm:px-0">
-              {/* Active Draw Section */}
-              {activeDraw && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Active Draw</h2>
-                  <DrawCard
-                    draw={activeDraw}
-                    userEntry={getUserEntryForDraw(activeDraw.id)}
-                    onEnterDraw={handleEnterDraw}
-                    onViewWinners={handleViewWinners}
-                    isAdmin={user?.role === 'admin'}
-                    onExecuteDraw={handleExecuteDraw}
-                  />
-                </div>
-              )}
-
-              {/* Entry Form Modal */}
-              {showEntryForm && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                  <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-lg bg-white">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-xl font-semibold text-gray-900">Enter Draw</h3>
-                      <button
-                        onClick={() => setShowEntryForm(false)}
-                        className="text-gray-400 hover:text-gray-500"
-                      >
-                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                    <NumberPicker
-                      onSubmit={handleSubmitNumbers}
-                      loading={loading}
-                      initialNumbers={randomNumbers}
-                    />
-                    <div className="mt-4 text-center">
-                      <button
-                        onClick={handleGenerateRandom}
-                        className="text-indigo-600 hover:text-indigo-800 text-sm"
-                      >
-                        Or generate random numbers
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Past Draws */}
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Past Draws</h2>
-                {loading && !activeDraw ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-                  </div>
-                ) : draws.length === 0 ? (
-                  <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p className="mt-2 text-gray-500">No draws available yet.</p>
-                    <p className="text-sm text-gray-400">Check back soon for new draws!</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {draws.map((draw) => (
+              {!canEnter ? (
+                <UpgradePrompt
+                  requiredPlan="premium"
+                  feature="Draw Participation"
+                />
+              ) : (
+                <>
+                  {/* Active Draw Section */}
+                  {activeDraw && (
+                    <div className="mb-8">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-4">Active Draw</h2>
                       <DrawCard
-                        key={draw.id}
-                        draw={draw}
-                        userEntry={getUserEntryForDraw(draw.id)}
+                        draw={activeDraw}
+                        userEntry={getUserEntryForDraw(activeDraw.id)}
                         onEnterDraw={handleEnterDraw}
                         onViewWinners={handleViewWinners}
                         isAdmin={user?.role === 'admin'}
-                        onExecuteDraw={handleExecuteDraw}
                       />
-                    ))}
+                    </div>
+                  )}
+
+                  {/* Entry Form Modal */}
+                  {showEntryForm && (
+                    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                      <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-lg bg-white">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-xl font-semibold text-gray-900">Enter Draw</h3>
+                          <button
+                            onClick={() => setShowEntryForm(false)}
+                            className="text-gray-400 hover:text-gray-500"
+                          >
+                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                        <NumberPicker
+                          onSubmit={handleSubmitNumbers}
+                          loading={loading}
+                          initialNumbers={randomNumbers}
+                        />
+                        <div className="mt-4 text-center">
+                          <button
+                            onClick={handleGenerateRandom}
+                            className="text-indigo-600 hover:text-indigo-800 text-sm"
+                          >
+                            Or generate random numbers
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Past Draws */}
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Past Draws</h2>
+                    {loading && !activeDraw ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                      </div>
+                    ) : draws.length === 0 ? (
+                      <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="mt-2 text-gray-500">No draws available yet.</p>
+                        <p className="text-sm text-gray-400">Check back soon for new draws!</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {draws.map((draw) => (
+                          <DrawCard
+                            key={draw.id}
+                            draw={draw}
+                            userEntry={getUserEntryForDraw(draw.id)}
+                            onEnterDraw={handleEnterDraw}
+                            onViewWinners={handleViewWinners}
+                            isAdmin={user?.role === 'admin'}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
             </div>
           </div>
         </main>
