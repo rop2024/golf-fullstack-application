@@ -19,12 +19,12 @@ const ScoreForm = ({ onSubmit, loading }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Score</h3>
+    <div>
+      <h3 className="text-lg font-semibold text-white mb-4">Add New Score</h3>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="score" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="score" className="block text-sm font-medium text-gray-300">
             Score (0-100)
           </label>
           <input
@@ -34,14 +34,14 @@ const ScoreForm = ({ onSubmit, loading }) => {
             max="100"
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-white"
             placeholder="Enter your score"
             required
           />
         </div>
 
         {error && (
-          <div className="text-sm text-red-600">
+          <div className="text-sm text-red-400">
             {error}
           </div>
         )}

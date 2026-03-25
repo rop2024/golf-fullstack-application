@@ -144,10 +144,11 @@ const Draw = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-3xl font-bold text-gray-900">Lottery Draw</h1>
             <p className="mt-2 text-sm text-gray-600">
-              {canEnter ? (
-                `Pick 5 numbers between 1-50 for a chance to win! (${maxEntries} entries allowed per month)`
-              ) : (
-                'Upgrade to premium to participate in draws and win prizes!'
+              Pick 5 numbers between 1-50 for a chance to win! ({maxEntries} entries allowed per month)
+              {!isPremium && !isPro && (
+                <span className="ml-1 text-blue-600">
+                  Upgrade to premium for more entries and better odds.
+                </span>
               )}
             </p>
           </div>

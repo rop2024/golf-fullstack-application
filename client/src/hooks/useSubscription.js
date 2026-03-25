@@ -68,8 +68,8 @@ export const useSubscription = () => {
     if (!subscription) return false;
 
     const features = {
-      submit_score: subscription.subscription_status !== 'free',
-      enter_draw: subscription.subscription_status !== 'free',
+      submit_score: true, // Allow all users to submit scores (with limits)
+      enter_draw: true, // Allow all users to enter draws (with limits)
       view_stats: subscription.subscription_status !== 'free',
       bulk_submit: subscription.subscription_status === 'premium' || subscription.subscription_status === 'pro',
       api_access: subscription.subscription_status === 'pro'

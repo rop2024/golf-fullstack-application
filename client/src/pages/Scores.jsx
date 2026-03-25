@@ -1,89 +1,66 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useScores } from '../hooks/useScores';
-import { useSubscription } from '../hooks/useSubscription';
 import ScoreForm from '../components/ScoreForm';
 import ScoreList from '../components/ScoreList';
 import ScoreChart from '../components/ScoreChart';
-import LoadingSpinner from '../components/LoadingSpinner';
-import SubscriptionGuard from '../components/SubscriptionGuard';
-import FeatureLock from '../components/FeatureLock';
-import UpgradePrompt from '../components/UpgradePrompt';
-import { useNavigate } from 'react-router-dom';
+import { useScores } from '../hooks/useScores';
 
 const Scores = () => {
-  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const {
-    scores,
-    stats,
-    loading: scoresLoading,
-    error,
-    remainingSlots,
-    addScore,
-    deleteScore,
-    hasScores,
-    isMaxScores,
-    fetchScores
-  } = useScores();
+  const { user, logout } = useAuth();
+  const { scores, stats, loading, error, remainingSlots, plan, features, addScore, deleteScore } = useScores();
 
-  const {
-    isPremium,
-    isPro,
-    getFeatureLimit,
-    canPerformAction
-  } = useSubscription();
+  const [greeting, setGreeting] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [showBulkForm, setShowBulkForm] = useState(false);
-  const [bulkScores, setBulkScores] = useState('');
-
-  // Redirect if not authenticated
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/');
-    }
-  }, [user, authLoading, navigate]);
+    // Set greeting based on time of day
+    const hour = new Date().getHours();
+    if (hour >= 6 && hour < 12) setGreeting('Good Morning');
+    else if (hour >= 12 && hour < 18) setGreeting('Good Afternoon');
+    else setGreeting('Good Evening');
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownOpen && !event.target.closest('.user-dropdown')) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [dropdownOpen]);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   const handleAddScore = async (value) => {
     const result = await addScore(value);
-    if (result.success) {
-      setSuccessMessage(`Score ${value} added successfully!`);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+    if (!result.success) {
+      // Error handling can be added here
+      console.error(result.error);
     }
   };
 
   const handleDeleteScore = async (scoreId) => {
-    if (window.confirm('Are you sure you want to delete this score?')) {
-      const result = await deleteScore(scoreId);
-      if (result.success) {
-        setSuccessMessage('Score deleted successfully!');
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
-      }
+    const result = await deleteScore(scoreId);
+    if (!result.success) {
+      // Error handling can be added here
+      console.error(result.error);
     }
   };
 
-  const handleBulkSubmit = async () => {
-    const scoresArray = bulkScores.split(',').map(s => parseInt(s.trim()));
-    if (scoresArray.some(isNaN)) {
-      alert('Please enter valid numbers');
-      return;
-    }
-
-    // This would call a bulk submit API
-    alert('Bulk submit feature would be implemented here');
+  const handleUpgradeClick = () => {
+    navigate('/subscription');
   };
 
-  const maxScores = getFeatureLimit('maxScores');
-  const canSubmit = canPerformAction('submit_score');
-  const canBulkSubmit = canPerformAction('bulk_submit');
-
-  if (authLoading) {
-    return <LoadingSpinner fullScreen />;
-  }
+  const maxScores = features?.maxScores || 5;
+  const usedScores = maxScores - remainingSlots;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -124,167 +101,155 @@ const Scores = () => {
               </button>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-300">
-                Plan: <span className="font-semibold capitalize">{isPremium ? 'Premium' : 'Free'}</span>
-              </span>
+              {/* User Dropdown */}
+              <div className="relative user-dropdown">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                >
+                  <span className="material-icons text-gray-300">person</span>
+                </button>
+
+                {/* Dropdown Menu */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50">
+                    {/* User Info Header */}
+                    <div className="px-4 py-3 border-b border-gray-700">
+                      <p className="text-sm font-medium text-white">
+                        {user?.profile?.username || user?.email?.split('@')[0]}
+                      </p>
+                      <p className="text-xs text-gray-400">{user?.email}</p>
+                      <p className="text-xs text-gray-500 mt-1">{greeting}!</p>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="py-2">
+                      <button
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          navigate('/settings');
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200 flex items-center"
+                      >
+                        <span className="material-icons text-base mr-3">person</span>
+                        Profile Settings
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          navigate('/subscription');
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200 flex items-center"
+                      >
+                        <span className="material-icons text-base mr-3">credit_card</span>
+                        Subscription
+                      </button>
+
+                      <div className="border-t border-gray-700 my-1"></div>
+
+                      <button
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          handleLogout();
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition duration-200 flex items-center"
+                      >
+                        <span className="material-icons text-base mr-3">logout</span>
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <div className="py-10">
-        <header>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold text-gray-900">Score Management</h1>
-            <p className="mt-2 text-sm text-gray-600">
-              {canSubmit ? (
-                `You can store up to ${maxScores} scores. ${remainingSlots} slot${remainingSlots !== 1 ? 's' : ''} remaining.`
-              ) : (
-                'Upgrade to premium to start tracking your scores!'
-              )}
+      <div className="py-20">
+        <header className="relative py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Score Management</h1>
+            <p className="text-xl text-gray-300 mb-8">
+              Track your golf scores and manage your entries
             </p>
           </div>
         </header>
 
-        <main>
+        <main className="relative">
           <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            {/* Success Message */}
-            {showSuccess && (
-              <div className="mb-4 rounded-md bg-green-50 p-4 animate-fade-in">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-green-800">{successMessage}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Error Message */}
-            {error && (
-              <div className="mb-4 rounded-md bg-red-50 p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-red-800">{error}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
             <div className="px-4 py-8 sm:px-0">
-              {!canSubmit ? (
-                <UpgradePrompt
-                  requiredPlan="premium"
-                  feature="Score Tracking"
-                />
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Left Column - Add Score Form */}
+              {/* Limits and Usage Display */}
+              <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700 mb-8">
+                <div className="flex items-center justify-between">
                   <div>
-                    {!isMaxScores ? (
-                      <ScoreForm onSubmit={handleAddScore} loading={scoresLoading} />
-                    ) : (
-                      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
-                        <div className="flex">
-                          <div className="flex-shrink-0">
-                            <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                          <div className="ml-3">
-                            <p className="text-sm text-yellow-700">
-                              You have reached the maximum of {maxScores} scores. Delete some scores or upgrade to add more.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Bulk Score Submission (Premium Feature) */}
-                    {canBulkSubmit && (
-                      <div className="mt-6">
-                        <button
-                          onClick={() => setShowBulkForm(!showBulkForm)}
-                          className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                        >
-                          {showBulkForm ? '−' : '+'} Bulk Score Submission
-                        </button>
-
-                        {showBulkForm && (
-                          <div className="mt-4 bg-white rounded-lg shadow-md p-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Bulk Add Scores</h3>
-                            <textarea
-                              rows={3}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                              placeholder="Enter scores separated by commas (e.g., 85, 92, 78, 95)"
-                              value={bulkScores}
-                              onChange={(e) => setBulkScores(e.target.value)}
-                            />
-                            <button
-                              onClick={handleBulkSubmit}
-                              className="mt-3 w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-                            >
-                              Submit All
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Score Statistics - Premium Feature */}
-                    {hasScores && (
-                      <SubscriptionGuard requiredPlan="premium" feature="Advanced Statistics">
-                        <ScoreChart scores={scores} />
-                      </SubscriptionGuard>
-                    )}
+                    <h3 className="text-lg font-semibold text-white mb-2">Score Limits</h3>
+                    <p className="text-gray-300 text-sm">
+                      {plan === 'free' ? 'Free Plan' : `${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan`}: 
+                      {usedScores} of {maxScores} scores used
+                    </p>
+                    <div className="mt-2 bg-gray-700 rounded-full h-2">
+                      <div
+                        className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${(usedScores / maxScores) * 100}%` }}
+                      ></div>
+                    </div>
                   </div>
+                  
+                  {plan === 'free' && (
+                    <div className="text-right">
+                      <button
+                        onClick={handleUpgradeClick}
+                        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105"
+                      >
+                        Upgrade to Premium
+                      </button>
+                      <p className="text-xs text-gray-400 mt-1">Unlimited scores & more features</p>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-                  {/* Right Column - Score List */}
-                  <div>
-                    <ScoreList
-                      scores={scores}
-                      onDelete={handleDeleteScore}
-                      loading={scoresLoading}
-                    />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                {/* Add New Score */}
+                <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+                  <ScoreForm onSubmit={handleAddScore} loading={loading} />
+                </div>
 
-                    {/* Stats Summary */}
-                    {hasScores && (
-                      <div className="mt-4 bg-white rounded-lg shadow-md p-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Score Summary</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-xs text-gray-500">Total Scores</p>
-                            <p className="text-lg font-semibold text-gray-900">{stats.count}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Total Points</p>
-                            <p className="text-lg font-semibold text-gray-900">{stats.total}</p>
-                          </div>
-                          {isPremium && (
-                            <>
-                              <div>
-                                <p className="text-xs text-gray-500">Average</p>
-                                <p className="text-lg font-semibold text-gray-900">{stats.average}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-500">Range</p>
-                                <p className="text-lg font-semibold text-gray-900">{stats.lowest} - {stats.highest}</p>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                {/* Score Statistics */}
+                <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+                  <ScoreChart scores={scores} />
+                </div>
+              </div>
+
+              {/* Your Scores */}
+              <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700">
+                <ScoreList scores={scores} onDelete={handleDeleteScore} loading={loading} />
+              </div>
+
+              {/* Premium Features Advertisement */}
+              {plan === 'free' && (
+                <div className="bg-gradient-to-r from-indigo-900 to-purple-900 rounded-lg shadow-lg border border-indigo-700 p-6 mt-8">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-2">🚀 Unlock Premium Features</h3>
+                      <ul className="text-gray-300 text-sm space-y-1 mb-4">
+                        <li>✓ Unlimited score submissions</li>
+                        <li>✓ Advanced statistics & analytics</li>
+                        <li>✓ Priority customer support</li>
+                        <li>✓ Export your score data</li>
+                      </ul>
+                    </div>
+                    <div className="ml-6">
+                      <button
+                        onClick={handleUpgradeClick}
+                        className="bg-white text-indigo-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                      >
+                        Upgrade Now
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

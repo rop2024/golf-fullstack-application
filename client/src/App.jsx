@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Home from './Home'
 import LoadingSpinner from './components/LoadingSpinner'
+import AdminGuard from './components/AdminGuard'
 
 // Lazy load all page components for code splitting
 const Landing = React.lazy(() => import('./pages/Landing'))
@@ -49,7 +50,7 @@ function App() {
             <Route path="/winners" element={<Winners />} />
             <Route path="/subscription" element={<Subscription />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
           </Routes>
         </Suspense>
       </Router>

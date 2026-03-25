@@ -13,6 +13,8 @@ export const useScores = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [remainingSlots, setRemainingSlots] = useState(5);
+  const [plan, setPlan] = useState('free');
+  const [features, setFeatures] = useState(null);
 
   // Fetch scores
   const fetchScores = useCallback(async () => {
@@ -23,13 +25,49 @@ export const useScores = () => {
     
     if (result.success) {
       setScores(result.data.scores);
-      setStats(result.data.stats);
       setRemainingSlots(result.data.remaining_slots);
+      setPlan(result.data.plan);
+      setFeatures(result.data.features);
+      
+      // Use server-provided stats if available, otherwise calculate locally
+      if (result.data.stats) {
+        setStats(result.data.stats);
+      } else {
+        const calculatedStats = calculateStats(result.data.scores);
+        setStats(calculatedStats);
+      }
     } else {
       setError(result.error);
     }
     
     setLoading(false);
+  }, [calculateStats]);
+
+  // Calculate stats from scores array
+  const calculateStats = useCallback((scoresArray) => {
+    if (scoresArray.length === 0) {
+      return {
+        total: 0,
+        average: 0,
+        highest: 0,
+        lowest: 0,
+        count: 0
+      };
+    }
+
+    const values = scoresArray.map(s => s.value);
+    const total = values.reduce((a, b) => a + b, 0);
+    const average = Math.round(total / values.length);
+    const highest = Math.max(...values);
+    const lowest = Math.min(...values);
+
+    return {
+      total,
+      average,
+      highest,
+      lowest,
+      count: scoresArray.length
+    };
   }, []);
 
   // Add a new score
@@ -42,21 +80,21 @@ export const useScores = () => {
     if (result.success) {
       setScores(result.data.scores);
       setRemainingSlots(result.data.remaining_slots);
+      setPlan(result.data.plan || plan);
+      setFeatures(result.data.features || features);
       
-      // Refresh stats
-      const statsResult = await scoreService.getStats();
-      if (statsResult.success) {
-        setStats(statsResult.data.stats);
-      }
+      // Calculate stats locally instead of making another API call
+      const newStats = calculateStats(result.data.scores);
+      setStats(newStats);
       
+      setLoading(false);
       return { success: true, data: result.data };
     } else {
       setError(result.error);
+      setLoading(false);
       return { success: false, error: result.error };
     }
-    
-    setLoading(false);
-  }, []);
+  }, [plan, features, calculateStats]);
 
   // Delete a score
   const deleteScore = useCallback(async (scoreId) => {
@@ -69,20 +107,18 @@ export const useScores = () => {
       setScores(result.data.scores);
       setRemainingSlots(result.data.remaining_slots);
       
-      // Refresh stats
-      const statsResult = await scoreService.getStats();
-      if (statsResult.success) {
-        setStats(statsResult.data.stats);
-      }
+      // Calculate stats locally instead of making another API call
+      const newStats = calculateStats(result.data.scores);
+      setStats(newStats);
       
+      setLoading(false);
       return { success: true };
     } else {
       setError(result.error);
+      setLoading(false);
       return { success: false, error: result.error };
     }
-    
-    setLoading(false);
-  }, []);
+  }, [calculateStats]);
 
   // Bulk add scores (for testing)
   const bulkAddScores = useCallback(async (scoreValues) => {
@@ -95,20 +131,18 @@ export const useScores = () => {
       setScores(result.data.scores);
       setRemainingSlots(result.data.remaining_slots);
       
-      // Refresh stats
-      const statsResult = await scoreService.getStats();
-      if (statsResult.success) {
-        setStats(statsResult.data.stats);
-      }
+      // Calculate stats locally instead of making another API call
+      const newStats = calculateStats(result.data.scores);
+      setStats(newStats);
       
+      setLoading(false);
       return { success: true, data: result.data };
     } else {
       setError(result.error);
+      setLoading(false);
       return { success: false, error: result.error };
     }
-    
-    setLoading(false);
-  }, []);
+  }, [calculateStats]);
 
   // Load scores on mount
   useEffect(() => {
@@ -121,6 +155,8 @@ export const useScores = () => {
     loading,
     error,
     remainingSlots,
+    plan,
+    features,
     addScore,
     deleteScore,
     fetchScores,

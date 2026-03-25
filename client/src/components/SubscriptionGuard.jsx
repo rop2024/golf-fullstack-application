@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useSubscription } from '../hooks/useSubscription';
 import UpgradePrompt from './UpgradePrompt';
 import LoadingSpinner from './LoadingSpinner';
@@ -9,7 +10,14 @@ const SubscriptionGuard = ({
   feature = null,
   fallback = null 
 }) => {
+  const { user } = useAuth();
   const { isPremium, isPro, loading, subscription } = useSubscription();
+
+  // Admin users have access to all features
+  const isAdmin = user?.profile?.role === 'admin';
+  if (isAdmin) {
+    return children;
+  }
 
   if (loading) {
     return <LoadingSpinner />;
