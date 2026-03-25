@@ -35,7 +35,7 @@ const Winners = () => {
   // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/login');
+      navigate('/');
     }
   }, [user, authLoading, navigate]);
 

@@ -23,16 +23,9 @@ const Dashboard = () => {
     else setGreeting('Good Evening');
   }, []);
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/login');
-    }
-  }, [user, authLoading, navigate]);
-
   const handleLogout = async () => {
     await logout();
-    navigate('/login');
+    navigate('/');
   };
 
   const handleUpgrade = async (plan) => {
