@@ -14,6 +14,7 @@ const Dashboard = () => {
   const { balance, isPremium, upgradeSubscription, cancelSubscription, loading: subLoading } = useSubscription();
 
   const [greeting, setGreeting] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     // Set greeting based on time of day
@@ -22,6 +23,18 @@ const Dashboard = () => {
     else if (hour < 18) setGreeting('Good Afternoon');
     else setGreeting('Good Evening');
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownOpen && !event.target.closest('.user-dropdown')) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [dropdownOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -89,15 +102,67 @@ const Dashboard = () => {
               </button>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-300">
-                {greeting}, {user?.profile?.username || user?.email?.split('@')[0]}!
-              </span>
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center px-3 py-2 border border-gray-600 text-sm leading-4 font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200"
-              >
-                Logout
-              </button>
+              {/* User Dropdown */}
+              <div className="relative user-dropdown">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                >
+                  <span className="material-icons text-gray-300">person</span>
+                </button>
+
+                {/* Dropdown Menu */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50">
+                    {/* User Info Header */}
+                    <div className="px-4 py-3 border-b border-gray-700">
+                      <p className="text-sm font-medium text-white">
+                        {user?.profile?.username || user?.email?.split('@')[0]}
+                      </p>
+                      <p className="text-xs text-gray-400">{user?.email}</p>
+                      <p className="text-xs text-gray-500 mt-1">{greeting}!</p>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="py-2">
+                      <button
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          // Navigate to profile/settings page (can be implemented later)
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200 flex items-center"
+                      >
+                        <span className="material-icons text-base mr-3">person</span>
+                        Profile Settings
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          navigate('/subscription');
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200 flex items-center"
+                      >
+                        <span className="material-icons text-base mr-3">credit_card</span>
+                        Subscription
+                      </button>
+
+                      <div className="border-t border-gray-700 my-1"></div>
+
+                      <button
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          handleLogout();
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition duration-200 flex items-center"
+                      >
+                        <span className="material-icons text-base mr-3">logout</span>
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
