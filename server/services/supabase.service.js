@@ -766,7 +766,7 @@ export const getDashboardStats = async (userId) => {
     // Get user's scores
     const { data: scores, error: scoresError } = await supabaseAdmin
       .from('scores')
-      .select('value')
+      .select('score')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(5);
@@ -776,7 +776,7 @@ export const getDashboardStats = async (userId) => {
     // Get user's winnings
     const { data: winnings, error: winningsError } = await supabaseAdmin
       .from('winners')
-      .select('prize_amount, status')
+      .select('prize')
       .eq('user_id', userId);
 
     if (winningsError) throw winningsError;
@@ -802,16 +802,16 @@ export const getDashboardStats = async (userId) => {
 
     // Calculate stats
     const scoreStats = {
-      total: scores.reduce((sum, s) => sum + s.value, 0),
-      average: scores.length > 0 ? Math.round(scores.reduce((sum, s) => sum + s.value, 0) / scores.length) : 0,
-      highest: scores.length > 0 ? Math.max(...scores.map(s => s.value)) : 0,
+      total: scores.reduce((sum, s) => sum + s.score, 0),
+      average: scores.length > 0 ? Math.round(scores.reduce((sum, s) => sum + s.score, 0) / scores.length) : 0,
+      highest: scores.length > 0 ? Math.max(...scores.map(s => s.score)) : 0,
       count: scores.length
     };
 
     const winningsStats = {
-      total: winnings.reduce((sum, w) => sum + w.prize_amount, 0),
-      pending: winnings.filter(w => w.status === 'pending').reduce((sum, w) => sum + w.prize_amount, 0),
-      claimed: winnings.filter(w => w.status === 'claimed').reduce((sum, w) => sum + w.prize_amount, 0),
+      total: winnings.length, // Count of wins since prize is TEXT
+      pending: 0, // No status column, so assume all are claimed
+      claimed: winnings.length,
       count: winnings.length
     };
 
