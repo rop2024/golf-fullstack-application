@@ -77,18 +77,24 @@ export const AuthProvider = ({ children }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
+        console.log('Auth state changed:', event, session?.user?.id, session ? 'HAS_SESSION' : 'NO_SESSION');
 
-        if (!mounted) return;
+        if (!mounted) {
+          console.log('Component unmounted, ignoring auth state change');
+          return;
+        }
 
         try {
           if (session?.user) {
+            console.log('Setting user and session for:', session.user.id);
             setSession(session);
             setUser(session.user);
 
             // Fetch user profile from profiles table
             await fetchUserProfile(session.user.id);
+            console.log('Auth state change completed successfully');
           } else {
+            console.log('Clearing user and session');
             setSession(null);
             setUser(null);
           }
@@ -112,19 +118,56 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserProfile = async (userId) => {
     try {
+      console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching profile:', error);
+      if (error) {
+        console.error('Profile fetch error:', error);
+        if (error.code === 'PGRST116') {
+          // Profile doesn't exist, create it
+          console.log('Profile not found, creating new profile...');
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData.user) {
+            const { error: createError } = await supabase
+              .from('profiles')
+              .insert([
+                {
+                  id: userId,
+                  email: userData.user.email,
+                  username: userData.user.user_metadata?.username || userData.user.email?.split('@')[0] || 'User',
+                  subscription_status: 'free',
+                  created_at: new Date().toISOString()
+                }
+              ]);
+
+            if (createError) {
+              console.error('Error creating profile:', createError);
+            } else {
+              console.log('Profile created successfully');
+              // Fetch the newly created profile
+              const { data: newProfile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+              if (newProfile) {
+                setUser(prev => ({ ...prev, profile: newProfile }));
+              }
+            }
+          }
+        }
       } else if (data) {
+        console.log('Profile found:', data);
         setUser(prev => ({ ...prev, profile: data }));
       }
     } catch (err) {
-      console.error('Error fetching profile:', err);
+      console.error('Error in fetchUserProfile:', err);
+      // Don't throw error, just log it
     }
   };
 
@@ -148,6 +191,7 @@ export const AuthProvider = ({ children }) => {
       if (signUpError) throw signUpError;
 
       if (authData.user) {
+        console.log('Signup successful, creating profile for user:', authData.user.id);
         // Create profile in profiles table
         const { error: profileError } = await supabase
           .from('profiles')
@@ -162,8 +206,10 @@ export const AuthProvider = ({ children }) => {
           ]);
 
         if (profileError) {
-          console.error('Error creating profile:', profileError);
+          console.error('Error creating profile during signup:', profileError);
           // Don't throw here, user still created
+        } else {
+          console.log('Profile created successfully during signup');
         }
 
         // Don't set user/session here - let the auth state change listener handle it
@@ -186,6 +232,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       startLoadingTimeout();
 
+      console.log('Attempting sign in for:', email);
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -194,10 +241,12 @@ export const AuthProvider = ({ children }) => {
       if (signInError) throw signInError;
 
       if (data.user && data.session) {
+        console.log('Sign in successful, setting user and session');
         // Set user and session immediately for better UX
         setUser(data.user);
         setSession(data.session);
         await fetchUserProfile(data.user.id);
+        console.log('Sign in completed successfully');
         return { success: true, user: data.user };
       }
 
