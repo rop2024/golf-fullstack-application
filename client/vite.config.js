@@ -12,5 +12,20 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Group React and related libraries
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // Group Supabase
+          'supabase': ['@supabase/supabase-js'],
+          // Group other utilities
+          'utils': ['axios', 'date-fns', 'canvas-confetti']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 600 // Slightly increase the warning limit
   }
 })
