@@ -13,6 +13,8 @@ import {
   getDrawStats as getDrawStatsService,
   generateDrawNumbers
 } from '../services/supabase.service.js';
+import subscriptionService from '../services/subscription.service.js';
+import { supabaseAdmin } from '../services/supabase.service.js';
 
 // Create a new draw (Admin only)
 export const createDraw = async (req, res) => {
@@ -93,13 +95,51 @@ export const getDrawById = async (req, res) => {
   }
 };
 
-// Submit numbers for a draw
+// Submit numbers for a draw with subscription check
 export const submitDrawEntry = async (req, res) => {
   try {
     const userId = req.user.id;
     const { drawId } = req.params;
     const { numbers } = req.body;
-
+    
+    // Check if user can enter draws
+    const userPlan = await subscriptionService.getUserPlan(userId);
+    if (!userPlan?.features.canEnterDraws) {
+      return res.status(403).json({
+        message: 'Your current plan does not allow draw entries. Upgrade to participate.',
+        code: 'SUBSCRIPTION_REQUIRED',
+        required_plan: 'premium',
+        current_plan: userPlan?.plan || 'free'
+      });
+    }
+    
+    // Check rate limits for draw entries
+    const canEnter = await subscriptionService.checkRateLimit(userId, 'enter_draw');
+    if (!canEnter) {
+      return res.status(429).json({
+        message: `Monthly draw entry limit reached for ${userPlan.plan} plan. Upgrade for more entries.`,
+        code: 'RATE_LIMIT_EXCEEDED',
+        limit: userPlan.limits.drawEntriesPerMonth,
+        plan: userPlan.plan
+      });
+    }
+    
+    // Get current entries count
+    const { entries: currentEntries } = await getUserDrawEntriesService(userId, 100);
+    const currentCount = currentEntries?.length || 0;
+    
+    // Check max entries for plan
+    const maxEntries = userPlan.features.maxDrawEntries;
+    if (currentCount >= maxEntries) {
+      return res.status(403).json({
+        message: `Your ${userPlan.plan} plan allows maximum ${maxEntries} active draw entries.`,
+        code: 'MAX_ENTRIES_REACHED',
+        max_entries: maxEntries,
+        current_count: currentCount,
+        plan: userPlan.plan
+      });
+    }
+    
     // Validate numbers
     if (!numbers || !Array.isArray(numbers) || numbers.length !== 5) {
       return res.status(400).json({
@@ -107,30 +147,33 @@ export const submitDrawEntry = async (req, res) => {
         code: 'INVALID_NUMBERS'
       });
     }
-
+    
     // Validate numbers are between 1-50 and unique
-    const isValid = numbers.every(n => n >= 1 && n <= 50) &&
+    const isValid = numbers.every(n => n >= 1 && n <= 50) && 
                     new Set(numbers).size === 5;
-
+    
     if (!isValid) {
       return res.status(400).json({
         message: 'Numbers must be between 1-50 and unique',
         code: 'INVALID_NUMBERS'
       });
     }
-
+    
     const { entry, error } = await submitDrawEntryService(drawId, userId, numbers);
-
+    
     if (error) {
       return res.status(400).json({
         message: error,
         code: 'SUBMIT_ENTRY_ERROR'
       });
     }
-
+    
     res.status(201).json({
       message: 'Entry submitted successfully',
-      entry
+      entry,
+      remaining_entries: maxEntries - (currentCount + 1),
+      plan: userPlan.plan,
+      features: userPlan.features
     });
   } catch (error) {
     console.error('Submit draw entry controller error:', error);
@@ -216,22 +259,29 @@ export const getDrawWinners = async (req, res) => {
   }
 };
 
-// Get user's draw entries
+// Get user's draw entries with plan info
 export const getUserDrawEntries = async (req, res) => {
   try {
     const userId = req.user.id;
     const { limit = 10 } = req.query;
-
+    
+    const userPlan = await subscriptionService.getUserPlan(userId);
+    
     const { entries, error } = await getUserDrawEntriesService(userId, parseInt(limit));
-
+    
     if (error) {
       return res.status(400).json({
         message: error,
         code: 'FETCH_ENTRIES_ERROR'
       });
     }
-
-    res.json({ entries });
+    
+    res.json({ 
+      entries,
+      plan: userPlan?.plan || 'free',
+      max_entries: userPlan?.features.maxDrawEntries || 1,
+      remaining_entries: (userPlan?.features.maxDrawEntries || 1) - (entries?.length || 0)
+    });
   } catch (error) {
     console.error('Get user draw entries controller error:', error);
     res.status(500).json({
@@ -265,24 +315,62 @@ export const getUserWinnings = async (req, res) => {
   }
 };
 
-// Claim prize
+// Claim prize with multiplier
 export const claimPrize = async (req, res) => {
   try {
     const userId = req.user.id;
     const { winnerId } = req.params;
-
-    const { winner, error } = await claimPrizeService(winnerId, userId);
-
-    if (error) {
-      return res.status(400).json({
-        message: error,
-        code: 'CLAIM_PRIZE_ERROR'
+    
+    // Get winner info first
+    const { data: winner } = await supabaseAdmin
+      .from('winners')
+      .select('*')
+      .eq('id', winnerId)
+      .single();
+    
+    if (!winner) {
+      return res.status(404).json({
+        message: 'Winner not found',
+        code: 'WINNER_NOT_FOUND'
       });
     }
-
+    
+    // Calculate prize with multiplier based on subscription
+    const multiplier = await subscriptionService.calculatePrize(userId, 1);
+    const finalPrize = winner.prize_amount * multiplier;
+    
+    // Update prize amount with multiplier
+    const { data, error } = await supabaseAdmin
+      .from('winners')
+      .update({ 
+        prize_amount: finalPrize,
+        status: 'claimed',
+        claimed_at: new Date().toISOString()
+      })
+      .eq('id', winnerId)
+      .eq('user_id', userId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    // Update user balance
+    await supabaseAdmin
+      .from('profiles')
+      .update({ 
+        balance: supabaseAdmin.raw(`balance + ${finalPrize}`)
+      })
+      .eq('id', userId);
+    
+    const userPlan = await subscriptionService.getUserPlan(userId);
+    
     res.json({
-      message: 'Prize claimed successfully',
-      winner
+      message: `Prize claimed successfully! ${multiplier > 1 ? `(${multiplier}x multiplier applied!)` : ''}`,
+      winner: data,
+      multiplier,
+      original_prize: winner.prize_amount,
+      final_prize: finalPrize,
+      plan: userPlan?.plan || 'free'
     });
   } catch (error) {
     console.error('Claim prize controller error:', error);
