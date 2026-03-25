@@ -2,7 +2,8 @@ import {
   getUserSubscription,
   updateSubscription,
   getUserBalance,
-  updateUserBalance
+  updateUserBalance,
+  getDashboardStats
 } from '../services/supabase.service.js';
 
 // Get user's subscription

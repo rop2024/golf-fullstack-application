@@ -64,15 +64,15 @@ const Contact = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-blue-600/60 via-blue-600/20 to-transparent backdrop-blur-sm"></div>
+      <header className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-gray-800/60 via-gray-800/20 to-transparent backdrop-blur-sm"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">
             Contact Us
           </h1>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl text-gray-300 mb-8">
             Get in touch with our support team. We're here to help!
           </p>
         </div>
@@ -81,26 +81,26 @@ const Contact = () => {
       {/* Contact Methods */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">
             How Can We Help?
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             {contactMethods.map((method, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition duration-200">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="material-icons text-blue-600 text-2xl">{method.icon}</span>
+              <div key={index} className="bg-gray-800 rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition duration-200 border border-gray-700">
+                <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="material-icons text-gray-300 text-2xl">{method.icon}</span>
                 </div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-900">{method.title}</h3>
-                <p className="text-gray-600 mb-3">{method.description}</p>
+                <h3 className="text-lg font-semibold mb-2 text-white">{method.title}</h3>
+                <p className="text-gray-400 mb-3">{method.description}</p>
                 {method.action ? (
                   <a
                     href={method.action}
-                    className="text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-blue-400 hover:text-blue-300 font-medium"
                   >
                     {method.contact}
                   </a>
                 ) : (
-                  <span className="text-gray-700 font-medium">{method.contact}</span>
+                  <span className="text-gray-300 font-medium">{method.contact}</span>
                 )}
               </div>
             ))}
@@ -109,20 +109,20 @@ const Contact = () => {
       </section>
 
       {/* Contact Form */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">
+          <div className="bg-gray-700 rounded-xl shadow-lg p-8 border border-gray-600">
+            <h2 className="text-3xl font-bold text-center mb-8 text-white">
               Send Us a Message
             </h2>
 
             {submitted ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="material-icons text-green-600 text-2xl">check_circle</span>
+                <div className="w-16 h-16 bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-600">
+                  <span className="material-icons text-green-400 text-2xl">check_circle</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Message Sent!</h3>
-                <p className="text-gray-600 mb-6">
+                <h3 className="text-xl font-semibold mb-2 text-white">Message Sent!</h3>
+                <p className="text-gray-300 mb-6">
                   Thank you for contacting us. We'll get back to you within 24 hours.
                 </p>
                 <button
@@ -136,7 +136,7 @@ const Contact = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
                       Full Name *
                     </label>
                     <input
@@ -146,12 +146,12 @@ const Contact = () => {
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                       placeholder="Your full name"
                     />
                   </div>
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                       Email Address *
                     </label>
                     <input
@@ -161,14 +161,14 @@ const Contact = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                       placeholder="your@email.com"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2">
                     Subject *
                   </label>
                   <select
@@ -177,7 +177,7 @@ const Contact = () => {
                     value={formData.subject}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
                   >
                     <option value="">Select a subject</option>
                     <option value="technical">Technical Support</option>
@@ -189,7 +189,7 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
                     Message *
                   </label>
                   <textarea
@@ -199,7 +199,7 @@ const Contact = () => {
                     onChange={handleInputChange}
                     required
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+                    className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 resize-vertical"
                     placeholder="Please describe your question or issue in detail..."
                   />
                 </div>
@@ -208,7 +208,7 @@ const Contact = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg rounded-lg hover:from-blue-700 hover:to-purple-700 transition duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center">
@@ -229,15 +229,15 @@ const Contact = () => {
       {/* FAQ Link */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
             Looking for Quick Answers?
           </h2>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-xl text-gray-300 mb-8">
             Check out our comprehensive FAQ section for instant answers to common questions
           </p>
           <button
             onClick={() => navigate('/help')}
-            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg rounded-lg hover:from-blue-700 hover:to-purple-700 transition duration-200 shadow-lg hover:shadow-xl"
+            className="px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg hover:shadow-xl"
           >
             Visit Help Center
           </button>

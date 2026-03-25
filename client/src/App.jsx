@@ -21,6 +21,7 @@ const Scores = React.lazy(() => import('./pages/Scores'))
 const Draw = React.lazy(() => import('./pages/Draw'))
 const Winners = React.lazy(() => import('./pages/Winners'))
 const Subscription = React.lazy(() => import('./pages/Subscription'))
+const Settings = React.lazy(() => import('./pages/Settings'))
 const Admin = React.lazy(() => import('./pages/Admin'))
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
             <Route path="/draw" element={<Draw />} />
             <Route path="/winners" element={<Winners />} />
             <Route path="/subscription" element={<Subscription />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/admin" element={<Admin />} />
           </Routes>
         </Suspense>

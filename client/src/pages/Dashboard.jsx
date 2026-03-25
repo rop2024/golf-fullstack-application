@@ -19,8 +19,8 @@ const Dashboard = () => {
   useEffect(() => {
     // Set greeting based on time of day
     const hour = new Date().getHours();
-    if (hour < 12) setGreeting('Good Morning');
-    else if (hour < 18) setGreeting('Good Afternoon');
+    if (hour >= 6 && hour < 12) setGreeting('Good Morning');
+    else if (hour >= 12 && hour < 18) setGreeting('Good Afternoon');
     else setGreeting('Good Evening');
   }, []);
 
@@ -128,7 +128,7 @@ const Dashboard = () => {
                       <button
                         onClick={() => {
                           setDropdownOpen(false);
-                          // Navigate to profile/settings page (can be implemented later)
+                          navigate('/settings');
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200 flex items-center"
                       >

@@ -5,15 +5,15 @@ const Legal = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-blue-600/60 via-blue-600/20 to-transparent backdrop-blur-sm"></div>
+      <header className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-gray-800/60 via-gray-800/20 to-transparent backdrop-blur-sm"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">
             Legal Information
           </h1>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl text-gray-300 mb-8">
             Important legal notices and disclaimers for Draw5.
           </p>
         </div>
@@ -22,146 +22,146 @@ const Legal = () => {
       {/* Content */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-8 md:p-12">
-            <div className="prose prose-lg max-w-none">
-              <p className="text-sm text-gray-600 mb-8">
+          <div className="bg-gray-800 rounded-xl shadow-lg p-8 md:p-12 border border-gray-700">
+            <div className="prose prose-lg max-w-none prose-invert">
+              <p className="text-sm text-gray-400 mb-8">
                 <strong>Last updated:</strong> March 26, 2024
               </p>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">1. Legal Disclaimer</h2>
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+              <h2 className="text-2xl font-bold mb-6 text-white">1. Legal Disclaimer</h2>
+              <div className="bg-yellow-900/20 border-l-4 border-yellow-600 p-4 mb-6">
                 <div className="flex">
                   <div className="ml-3">
-                    <p className="text-sm text-yellow-700">
+                    <p className="text-sm text-yellow-200">
                       <strong>Important Notice:</strong> Draw5 is a lottery platform. Participation involves risk. Please read all terms and conditions carefully.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">2. Gambling and Lottery Regulations</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">2. Gambling and Lottery Regulations</h2>
+              <p className="mb-6 text-gray-300">
                 Draw5 operates in compliance with applicable gambling and lottery regulations. Users are responsible for ensuring their participation is legal in their jurisdiction.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">Age Restrictions</h3>
-              <p className="mb-6 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-200">Age Restrictions</h3>
+              <p className="mb-6 text-gray-300">
                 You must be at least 18 years old (or the legal gambling age in your jurisdiction, whichever is higher) to participate in Draw5 lotteries. We verify age through our registration process and reserve the right to request additional verification.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">Jurisdictional Compliance</h3>
-              <p className="mb-6 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-200">Jurisdictional Compliance</h3>
+              <p className="mb-6 text-gray-300">
                 Draw5 is available in jurisdictions where lottery participation is permitted. It is your responsibility to ensure compliance with local laws. We do not accept entries from jurisdictions where lottery participation is prohibited.
               </p>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">3. Fair Play and Randomness</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">3. Fair Play and Randomness</h2>
+              <p className="mb-6 text-gray-300">
                 All Draw5 draws use cryptographically secure random number generation to ensure fair and unbiased results. Our system is regularly audited and tested for randomness and fairness.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">Draw Integrity</h3>
-              <ul className="list-disc pl-6 mb-6 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-200">Draw Integrity</h3>
+              <ul className="list-disc pl-6 mb-6 text-gray-300">
                 <li>All draws are conducted automatically at predetermined times</li>
                 <li>Results are recorded and stored immutably</li>
                 <li>Draw outcomes cannot be manipulated or altered</li>
                 <li>Independent audits may be conducted periodically</li>
               </ul>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">4. Prize Distribution</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">4. Prize Distribution</h2>
+              <p className="mb-6 text-gray-300">
                 Prizes are distributed automatically to winners within 24-48 hours of the draw. All prize distributions are final and non-negotiable.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">Prize Claims</h3>
-              <ul className="list-disc pl-6 mb-6 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-200">Prize Claims</h3>
+              <ul className="list-disc pl-6 mb-6 text-gray-300">
                 <li>Winners must claim prizes within 30 days of the draw</li>
                 <li>Unclaimed prizes may be redistributed or donated to charity</li>
                 <li>Prize values are guaranteed at the time of the draw</li>
                 <li>Tax implications are the responsibility of the winner</li>
               </ul>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">5. Responsible Gaming</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">5. Responsible Gaming</h2>
+              <p className="mb-6 text-gray-300">
                 Draw5 is committed to promoting responsible gaming practices. We provide tools and resources to help users maintain control over their participation.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">Self-Exclusion</h3>
-              <p className="mb-4 text-gray-700">Users can request temporary or permanent self-exclusion:</p>
-              <ul className="list-disc pl-6 mb-6 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-200">Self-Exclusion</h3>
+              <p className="mb-4 text-gray-300">Users can request temporary or permanent self-exclusion:</p>
+              <ul className="list-disc pl-6 mb-6 text-gray-300">
                 <li>Contact our support team to initiate self-exclusion</li>
                 <li>Self-exclusion periods can range from 24 hours to permanent</li>
                 <li>During exclusion, account access is restricted</li>
                 <li>Self-exclusion requests are processed within 24 hours</li>
               </ul>
 
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">Support Resources</h3>
-              <p className="mb-6 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-200">Support Resources</h3>
+              <p className="mb-6 text-gray-300">
                 If you or someone you know has a gambling problem, please seek help from professional organizations:
               </p>
-              <ul className="list-disc pl-6 mb-6 text-gray-700">
+              <ul className="list-disc pl-6 mb-6 text-gray-300">
                 <li><strong>Gamblers Anonymous:</strong> gamblersanonymous.org</li>
                 <li><strong>National Council on Problem Gambling:</strong> ncpgambling.org</li>
                 <li><strong>BeGambleAware:</strong> begambleaware.org</li>
               </ul>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">6. Intellectual Property</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">6. Intellectual Property</h2>
+              <p className="mb-6 text-gray-300">
                 All content, trademarks, and intellectual property associated with Draw5 are protected by applicable laws. Unauthorized use is prohibited.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">Copyright Notice</h3>
-              <p className="mb-6 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-200">Copyright Notice</h3>
+              <p className="mb-6 text-gray-300">
                 © 2024 Draw5. All rights reserved. The Draw5 name, logo, and associated content are trademarks of Draw5. Reproduction or distribution without permission is prohibited.
               </p>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">7. Dispute Resolution</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">7. Dispute Resolution</h2>
+              <p className="mb-6 text-gray-300">
                 In the event of disputes, Draw5 follows a structured resolution process to ensure fair outcomes for all parties.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">Resolution Process</h3>
-              <ol className="list-decimal pl-6 mb-6 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-200">Resolution Process</h3>
+              <ol className="list-decimal pl-6 mb-6 text-gray-300">
                 <li>Contact our support team with details of the dispute</li>
                 <li>Initial review conducted within 48 hours</li>
                 <li>Mediation offered for unresolved issues</li>
                 <li>Final resolution provided within 14 days</li>
               </ol>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">8. Limitation of Liability</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">8. Limitation of Liability</h2>
+              <p className="mb-6 text-gray-300">
                 Draw5's liability is limited to the extent permitted by applicable law. We are not liable for indirect, incidental, or consequential damages.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">Service Availability</h3>
-              <p className="mb-6 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-200">Service Availability</h3>
+              <p className="mb-6 text-gray-300">
                 While we strive for 99.9% uptime, we do not guarantee uninterrupted service. Scheduled maintenance and unforeseen technical issues may temporarily affect availability.
               </p>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">9. Data Protection and Privacy</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">9. Data Protection and Privacy</h2>
+              <p className="mb-6 text-gray-300">
                 Your privacy is important to us. Please refer to our Privacy Policy for detailed information about how we collect, use, and protect your personal data.
               </p>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">10. Changes to Legal Information</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">10. Changes to Legal Information</h2>
+              <p className="mb-6 text-gray-300">
                 This legal information may be updated periodically. Material changes will be communicated to users through our platform or email notifications.
               </p>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">11. Contact Information</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">11. Contact Information</h2>
+              <p className="mb-6 text-gray-300">
                 For legal inquiries or concerns, please contact our legal team:
               </p>
-              <div className="bg-gray-50 p-6 rounded-lg mb-6">
-                <p className="text-gray-700">
+              <div className="bg-gray-700 p-6 rounded-lg mb-6 border border-gray-600">
+                <p className="text-gray-300">
                   <strong>Email:</strong> legal@draw5.com<br />
                   <strong>Subject:</strong> Legal Inquiry<br />
                   <strong>Response Time:</strong> Within 48 hours
                 </p>
               </div>
 
-              <div className="mt-12 p-6 bg-red-50 rounded-lg border border-red-200">
-                <h3 className="text-lg font-semibold text-red-800 mb-2">Important Notice</h3>
-                <p className="text-red-700">
+              <div className="mt-12 p-6 bg-red-900/20 rounded-lg border border-red-600">
+                <h3 className="text-lg font-semibold text-red-300 mb-2">Important Notice</h3>
+                <p className="text-red-200">
                   This legal information is provided for general guidance only and does not constitute legal advice. For specific legal concerns, please consult with qualified legal professionals in your jurisdiction.
                 </p>
               </div>

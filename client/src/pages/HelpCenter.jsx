@@ -68,20 +68,20 @@ const HelpCenter = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-blue-600/60 via-blue-600/20 to-transparent backdrop-blur-sm"></div>
+      <header className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-gray-800/60 via-gray-800/20 to-transparent backdrop-blur-sm"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">
             Help Center
           </h1>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl text-gray-300 mb-8">
             Find answers to common questions and get the help you need
           </p>
           <button
             onClick={() => navigate('/contact')}
-            className="px-8 py-4 bg-white text-blue-600 font-bold text-lg rounded-lg hover:bg-gray-100 transition duration-200 shadow-lg hover:shadow-xl"
+            className="px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg hover:shadow-xl"
           >
             Contact Support
           </button>
@@ -91,17 +91,17 @@ const HelpCenter = () => {
       {/* Help Categories */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">
             Browse by Category
           </h2>
           <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
             {categories.map((category, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition duration-200">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="material-icons text-blue-600 text-2xl">{category.icon}</span>
+              <div key={index} className="bg-gray-800 rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition duration-200 border border-gray-700">
+                <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="material-icons text-gray-300 text-2xl">{category.icon}</span>
                 </div>
-                <h3 className="text-lg font-semibold mb-3 text-gray-900">{category.title}</h3>
-                <ul className="text-sm text-gray-600 space-y-1">
+                <h3 className="text-lg font-semibold mb-3 text-white">{category.title}</h3>
+                <ul className="text-sm text-gray-400 space-y-1">
                   {category.items.slice(0, 3).map((item, itemIndex) => (
                     <li key={itemIndex}>• {item}</li>
                   ))}
@@ -113,16 +113,16 @@ const HelpCenter = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">
             Frequently Asked Questions
           </h2>
           <div className="space-y-6">
             {faqs.map((faq, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold mb-3 text-gray-900">{faq.question}</h3>
-                <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
+              <div key={index} className="bg-gray-700 rounded-lg shadow-md p-6 border border-gray-600">
+                <h3 className="text-lg font-semibold mb-3 text-white">{faq.question}</h3>
+                <p className="text-gray-300 leading-relaxed">{faq.answer}</p>
               </div>
             ))}
           </div>
@@ -132,37 +132,37 @@ const HelpCenter = () => {
       {/* Contact Support */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
             Still Need Help?
           </h2>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-xl text-gray-300 mb-8">
             Our support team is here to help you with any questions or issues
           </p>
           <div className="grid md:grid-cols-2 gap-8 mb-8">
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="material-icons text-blue-600 text-2xl">email</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-700">
+              <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="material-icons text-gray-300 text-2xl">email</span>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Email Support</h3>
-              <p className="text-gray-600 mb-4">Get help via email</p>
-              <a href="mailto:support@draw5.com" className="text-blue-600 hover:text-blue-700 font-medium">
+              <h3 className="text-lg font-semibold mb-2 text-white">Email Support</h3>
+              <p className="text-gray-400 mb-4">Get help via email</p>
+              <a href="mailto:support@draw5.com" className="text-blue-400 hover:text-blue-300 font-medium">
                 support@draw5.com
               </a>
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="material-icons text-green-600 text-2xl">forum</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-700">
+              <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="material-icons text-gray-300 text-2xl">forum</span>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Community Forum</h3>
-              <p className="text-gray-600 mb-4">Connect with other users</p>
-              <button className="text-green-600 hover:text-green-700 font-medium">
+              <h3 className="text-lg font-semibold mb-2 text-white">Community Forum</h3>
+              <p className="text-gray-400 mb-4">Connect with other users</p>
+              <button className="text-green-400 hover:text-green-300 font-medium">
                 Visit Forum
               </button>
             </div>
           </div>
           <button
             onClick={() => navigate('/contact')}
-            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg rounded-lg hover:from-blue-700 hover:to-purple-700 transition duration-200 shadow-lg hover:shadow-xl"
+            className="px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-lg hover:bg-blue-700 transition duration-200 shadow-lg hover:shadow-xl"
           >
             Contact Us
           </button>

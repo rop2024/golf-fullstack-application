@@ -5,15 +5,15 @@ const Privacy = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-blue-600/60 via-blue-600/20 to-transparent backdrop-blur-sm"></div>
+      <header className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-gray-800/60 via-gray-800/20 to-transparent backdrop-blur-sm"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">
             Privacy Policy
           </h1>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl text-gray-300 mb-8">
             Your privacy is important to us. Learn how we protect your data.
           </p>
         </div>
@@ -22,29 +22,29 @@ const Privacy = () => {
       {/* Content */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-8 md:p-12">
-            <div className="prose prose-lg max-w-none">
-              <p className="text-sm text-gray-600 mb-8">
+          <div className="bg-gray-800 rounded-xl shadow-lg p-8 md:p-12 border border-gray-700">
+            <div className="prose prose-lg max-w-none prose-invert">
+              <p className="text-sm text-gray-400 mb-8">
                 <strong>Last updated:</strong> March 26, 2024
               </p>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">1. Introduction</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">1. Introduction</h2>
+              <p className="mb-6 text-gray-300">
                 Draw5 ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our golf lottery application and services.
               </p>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">2. Information We Collect</h2>
+              <h2 className="text-2xl font-bold mb-6 text-white">2. Information We Collect</h2>
 
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">Personal Information</h3>
-              <ul className="list-disc pl-6 mb-6 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-200">Personal Information</h3>
+              <ul className="list-disc pl-6 mb-6 text-gray-300">
                 <li>Name and email address</li>
                 <li>Profile information you provide</li>
                 <li>Payment information (processed securely by third-party providers)</li>
                 <li>Communication preferences</li>
               </ul>
 
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">Usage Data</h3>
-              <ul className="list-disc pl-6 mb-6 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-200">Usage Data</h3>
+              <ul className="list-disc pl-6 mb-6 text-gray-300">
                 <li>Golf scores and performance data</li>
                 <li>Draw entries and participation history</li>
                 <li>Login times and session information</li>
@@ -52,9 +52,9 @@ const Privacy = () => {
                 <li>IP address and location data</li>
               </ul>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">3. How We Use Your Information</h2>
-              <p className="mb-4 text-gray-700">We use collected information for:</p>
-              <ul className="list-disc pl-6 mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">3. How We Use Your Information</h2>
+              <p className="mb-4 text-gray-300">We use collected information for:</p>
+              <ul className="list-disc pl-6 mb-6 text-gray-300">
                 <li>Providing and maintaining our services</li>
                 <li>Processing lottery draws and prize distribution</li>
                 <li>Managing your account and subscriptions</li>
@@ -64,9 +64,9 @@ const Privacy = () => {
                 <li>Complying with legal obligations</li>
               </ul>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">4. Information Sharing and Disclosure</h2>
-              <p className="mb-4 text-gray-700">We do not sell, trade, or otherwise transfer your personal information to third parties except:</p>
-              <ul className="list-disc pl-6 mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">4. Information Sharing and Disclosure</h2>
+              <p className="mb-4 text-gray-300">We do not sell, trade, or otherwise transfer your personal information to third parties except:</p>
+              <ul className="list-disc pl-6 mb-6 text-gray-300">
                 <li>With your explicit consent</li>
                 <li>To trusted service providers who assist in operating our services</li>
                 <li>When required by law or to protect our rights</li>
@@ -74,19 +74,19 @@ const Privacy = () => {
                 <li>To protect against fraud or security threats</li>
               </ul>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">5. Data Security</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">5. Data Security</h2>
+              <p className="mb-6 text-gray-300">
                 We implement appropriate technical and organizational security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. This includes encryption of sensitive data, secure server infrastructure, and regular security assessments.
               </p>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">6. Data Retention</h2>
-              <p className="mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">6. Data Retention</h2>
+              <p className="mb-6 text-gray-300">
                 We retain your personal information for as long as necessary to provide our services and fulfill the purposes outlined in this policy. Account data is retained while your account is active and for a reasonable period thereafter for legal, regulatory, and business purposes.
               </p>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">7. Your Rights and Choices</h2>
-              <p className="mb-4 text-gray-700">You have the right to:</p>
-              <ul className="list-disc pl-6 mb-6 text-gray-700">
+              <h2 className="text-2xl font-bold mb-6 text-white">7. Your Rights and Choices</h2>
+              <p className="mb-4 text-gray-300">You have the right to:</p>
+              <ul className="list-disc pl-6 mb-6 text-gray-300">
                 <li>Access and review your personal information</li>
                 <li>Correct inaccurate or incomplete data</li>
                 <li>Delete your account and associated data</li>
@@ -95,9 +95,9 @@ const Privacy = () => {
                 <li>Withdraw consent where applicable</li>
               </ul>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">8. Cookies and Tracking</h2>
-              <p className="mb-6 text-gray-700">
-                We use cookies and similar technologies to enhance your experience, analyze usage patterns, and provide personalized content. You can control cookie preferences through your browser settings. For more details, see our <a href="#" onClick={() => navigate('/cookies')} className="text-blue-600 hover:text-blue-700">Cookie Policy</a>.
+              <h2 className="text-2xl font-bold mb-6 text-white">8. Cookies and Tracking</h2>
+              <p className="mb-6 text-gray-300">
+                We use cookies and similar technologies to enhance your experience, analyze usage patterns, and provide personalized content. You can control cookie preferences through your browser settings. For more details, see our <a href="#" onClick={() => navigate('/cookies')} className="text-blue-400 hover:text-blue-300">Cookie Policy</a>.
               </p>
 
               <h2 className="text-2xl font-bold mb-6 text-gray-900">9. Third-Party Services</h2>

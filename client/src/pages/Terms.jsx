@@ -5,15 +5,15 @@ const Terms = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-blue-600/60 via-blue-600/20 to-transparent backdrop-blur-sm"></div>
+      <header className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-gray-800/60 via-gray-800/20 to-transparent backdrop-blur-sm"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">
             Terms of Service
           </h1>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl text-gray-300 mb-8">
             Please read these terms carefully before using Draw5.
           </p>
         </div>
@@ -22,9 +22,9 @@ const Terms = () => {
       {/* Content */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-8 md:p-12">
-            <div className="prose prose-lg max-w-none">
-              <p className="text-sm text-gray-600 mb-8">
+          <div className="bg-gray-800 rounded-xl shadow-lg p-8 md:p-12 border border-gray-700">
+            <div className="prose prose-lg max-w-none prose-invert">
+              <p className="text-sm text-gray-400 mb-8">
                 <strong>Last updated:</strong> March 26, 2024
               </p>
 

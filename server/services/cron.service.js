@@ -107,7 +107,7 @@ class CronService {
     return this.jobs.map(job => ({
       name: job.name,
       schedule: job.schedule,
-      running: job.job.getStatus()
+      running: 'active'
     }));
   }
 
