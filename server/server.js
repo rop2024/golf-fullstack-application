@@ -5,6 +5,8 @@ import authRoutes from "./routes/auth.routes.js";
 import scoreRoutes from "./routes/score.routes.js";
 import drawRoutes from "./routes/draw.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import winnersRoutes from "./routes/winners.routes.js";
+import subscriptionRoutes from "./routes/subscription.routes.js";
 
 dotenv.config();
 
@@ -20,6 +22,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/scores", scoreRoutes);
 app.use("/api/draw", drawRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/winners", winnersRoutes);
+app.use("/api/subscription", subscriptionRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
