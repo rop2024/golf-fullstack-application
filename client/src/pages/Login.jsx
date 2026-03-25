@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -6,14 +6,60 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn, error, loading } = useAuth();
+  const [loginTimeout, setLoginTimeout] = useState(null);
+  const { signIn, error, loading, user } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user && !loading) {
+      navigate('/dashboard');
+    }
+  }, [user, loading, navigate]);
+
+  // Clear timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (loginTimeout) {
+        clearTimeout(loginTimeout);
+      }
+    };
+  }, [loginTimeout]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await signIn(email, password);
-    if (result.success) {
-      navigate('/dashboard');
+
+    // Clear any existing timeout
+    if (loginTimeout) {
+      clearTimeout(loginTimeout);
+    }
+
+    // Set a timeout to prevent infinite loading (10 seconds)
+    const timeoutId = setTimeout(() => {
+      console.error('Login timeout - forcing loading state reset');
+      // Force a page reload to reset the auth state
+      window.location.reload();
+    }, 10000);
+
+    setLoginTimeout(timeoutId);
+
+    try {
+      const result = await signIn(email, password);
+      if (result.success) {
+        // Clear the timeout since login succeeded
+        clearTimeout(timeoutId);
+        setLoginTimeout(null);
+        navigate('/dashboard');
+      } else {
+        // Clear the timeout on error
+        clearTimeout(timeoutId);
+        setLoginTimeout(null);
+      }
+    } catch (err) {
+      // Clear the timeout on error
+      clearTimeout(timeoutId);
+      setLoginTimeout(null);
+      console.error('Login error:', err);
     }
   };
 

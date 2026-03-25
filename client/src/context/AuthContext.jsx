@@ -16,8 +16,32 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [loadingTimeout, setLoadingTimeout] = useState(null);
+
+  // Safety timeout to prevent infinite loading
+  const startLoadingTimeout = () => {
+    if (loadingTimeout) {
+      clearTimeout(loadingTimeout);
+    }
+    const timeout = setTimeout(() => {
+      console.warn('Auth loading timeout - forcing loading to false');
+      setLoading(false);
+      setError('Loading timeout - please try refreshing the page');
+    }, 15000); // 15 seconds timeout
+    setLoadingTimeout(timeout);
+  };
+
+  const clearLoadingTimeout = () => {
+    if (loadingTimeout) {
+      clearTimeout(loadingTimeout);
+      setLoadingTimeout(null);
+    }
+  };
 
   useEffect(() => {
+    // Start loading timeout
+    startLoadingTimeout();
+
     // Check active session on mount
     checkUser();
 
@@ -26,40 +50,56 @@ export const AuthProvider = ({ children }) => {
       async (event, session) => {
         console.log('Auth state changed:', event, session);
 
-        if (session) {
-          setSession(session);
-          setUser(session.user);
+        try {
+          if (session?.user) {
+            setSession(session);
+            setUser(session.user);
 
-          // Fetch user profile from profiles table
-          if (session.user) {
+            // Fetch user profile from profiles table
             await fetchUserProfile(session.user.id);
+          } else {
+            setSession(null);
+            setUser(null);
           }
-        } else {
-          setSession(null);
-          setUser(null);
+        } catch (err) {
+          console.error('Error in auth state change:', err);
+          setError(err.message);
+        } finally {
+          // Always ensure loading is set to false
+          setLoading(false);
+          clearLoadingTimeout();
         }
-        setLoading(false);
       }
     );
 
     return () => {
       subscription.unsubscribe();
+      clearLoadingTimeout();
     };
   }, []);
 
   const checkUser = async () => {
     try {
+      setLoading(true);
+      setError(null);
+
       const session = await getSession();
-      if (session) {
+      if (session?.user) {
         setSession(session);
         setUser(session.user);
         await fetchUserProfile(session.user.id);
+      } else {
+        setSession(null);
+        setUser(null);
       }
     } catch (err) {
       console.error('Error checking user:', err);
       setError(err.message);
+      setSession(null);
+      setUser(null);
     } finally {
       setLoading(false);
+      clearLoadingTimeout();
     }
   };
 
@@ -85,6 +125,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       setLoading(true);
+      startLoadingTimeout();
 
       // Sign up with Supabase
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
@@ -118,9 +159,7 @@ export const AuthProvider = ({ children }) => {
           // Don't throw here, user still created
         }
 
-        setUser(authData.user);
-        setSession(authData.session);
-
+        // Don't set user/session here - let the auth state change listener handle it
         return { success: true, user: authData.user };
       }
 
@@ -128,9 +167,9 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error('Signup error:', err);
       setError(err.message);
-      return { success: false, error: err.message };
-    } finally {
       setLoading(false);
+      clearLoadingTimeout();
+      return { success: false, error: err.message };
     }
   };
 
@@ -138,6 +177,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       setLoading(true);
+      startLoadingTimeout();
 
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
@@ -146,27 +186,27 @@ export const AuthProvider = ({ children }) => {
 
       if (signInError) throw signInError;
 
-      if (data.user) {
-        setUser(data.user);
-        setSession(data.session);
-        await fetchUserProfile(data.user.id);
-
+      if (data.user && data.session) {
+        // Don't set user/session here - let the auth state change listener handle it
+        // This prevents race conditions and ensures consistent state management
         return { success: true, user: data.user };
       }
 
-      return { success: false, error: 'Login failed' };
+      throw new Error('Login failed - no user data received');
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message);
-      return { success: false, error: err.message };
-    } finally {
       setLoading(false);
+      clearLoadingTimeout();
+      return { success: false, error: err.message };
     }
+    // Don't set loading to false here - let the auth state change listener handle it
   };
 
   const logout = async () => {
     try {
       setLoading(true);
+      startLoadingTimeout();
       const success = await signOut();
       if (success) {
         setUser(null);
@@ -177,6 +217,7 @@ export const AuthProvider = ({ children }) => {
       setError(err.message);
     } finally {
       setLoading(false);
+      clearLoadingTimeout();
     }
   };
 
