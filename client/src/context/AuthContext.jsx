@@ -39,16 +39,47 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Start loading timeout
     startLoadingTimeout();
 
     // Check active session on mount
-    checkUser();
+    const initializeAuth = async () => {
+      try {
+        const session = await getSession();
+        if (mounted) {
+          if (session?.user) {
+            setSession(session);
+            setUser(session.user);
+            await fetchUserProfile(session.user.id);
+          } else {
+            setSession(null);
+            setUser(null);
+          }
+          setLoading(false);
+          clearLoadingTimeout();
+        }
+      } catch (err) {
+        console.error('Error initializing auth:', err);
+        if (mounted) {
+          setError(err.message);
+          setSession(null);
+          setUser(null);
+          setLoading(false);
+          clearLoadingTimeout();
+        }
+      }
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session);
+        console.log('Auth state changed:', event, session?.user?.id);
+
+        if (!mounted) return;
 
         try {
           if (session?.user) {
@@ -73,35 +104,11 @@ export const AuthProvider = ({ children }) => {
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
       clearLoadingTimeout();
     };
   }, []);
-
-  const checkUser = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const session = await getSession();
-      if (session?.user) {
-        setSession(session);
-        setUser(session.user);
-        await fetchUserProfile(session.user.id);
-      } else {
-        setSession(null);
-        setUser(null);
-      }
-    } catch (err) {
-      console.error('Error checking user:', err);
-      setError(err.message);
-      setSession(null);
-      setUser(null);
-    } finally {
-      setLoading(false);
-      clearLoadingTimeout();
-    }
-  };
 
   const fetchUserProfile = async (userId) => {
     try {
@@ -187,8 +194,10 @@ export const AuthProvider = ({ children }) => {
       if (signInError) throw signInError;
 
       if (data.user && data.session) {
-        // Don't set user/session here - let the auth state change listener handle it
-        // This prevents race conditions and ensures consistent state management
+        // Set user and session immediately for better UX
+        setUser(data.user);
+        setSession(data.session);
+        await fetchUserProfile(data.user.id);
         return { success: true, user: data.user };
       }
 
