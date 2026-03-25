@@ -10,6 +10,7 @@ import Subscription from './pages/Subscription'
 import Admin from './pages/Admin'
 
 function App() {
+  console.log('[Client] App component rendering...');
   return (
     <AuthProvider>
       <Router>
