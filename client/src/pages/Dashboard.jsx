@@ -53,8 +53,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Navigation Bar */}
-      <nav className="relative bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-blue-600/60 via-blue-600/20 to-transparent backdrop-blur-sm"></div>
+      <nav className="relative bg-gray-800 shadow-lg border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex justify-between h-16">
             <div className="flex space-x-8">
@@ -66,36 +65,36 @@ const Dashboard = () => {
               </button>
               <button
                 onClick={() => navigate('/scores')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-blue-100 hover:text-white hover:border-white/50"
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
               >
                 Scores
               </button>
               <button
                 onClick={() => navigate('/draw')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-blue-100 hover:text-white hover:border-white/50"
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
               >
                 Draw
               </button>
               <button
                 onClick={() => navigate('/winners')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-blue-100 hover:text-white hover:border-white/50"
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
               >
                 Winners
               </button>
               <button
                 onClick={() => navigate('/subscription')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-blue-100 hover:text-white hover:border-white/50"
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
               >
                 Subscription
               </button>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-blue-100">
+              <span className="text-sm text-gray-300">
                 {greeting}, {user?.profile?.username || user?.email?.split('@')[0]}!
               </span>
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center px-3 py-2 border border-white/20 text-sm leading-4 font-medium rounded-md text-white bg-white/10 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/50 transition duration-200"
+                className="inline-flex items-center px-3 py-2 border border-gray-600 text-sm leading-4 font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200"
               >
                 Logout
               </button>
@@ -106,8 +105,7 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="py-20">
-        <header className="relative">
-          <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-blue-600/60 via-blue-600/20 to-transparent backdrop-blur-sm"></div>
+        <header className="relative py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Dashboard</h1>
             <p className="text-xl text-gray-300 mb-8">
