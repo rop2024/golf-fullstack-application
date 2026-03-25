@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useDraw } from '../hooks/useDraw';
 import NumberPicker from '../components/NumberPicker';
 import DrawCard from '../components/DrawCard';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
 
 const Draw = () => {
@@ -17,19 +18,30 @@ const Draw = () => {
     submitEntry,
     generateRandomNumbers,
     hasEnteredDraw,
-    getUserEntryForDraw
+    getUserEntryForDraw,
+    fetchActiveDraw,
+    fetchDraws
   } = useDraw();
 
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [selectedDrawId, setSelectedDrawId] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [randomNumbers, setRandomNumbers] = useState([]);
 
   // Redirect if not authenticated
-  React.useEffect(() => {
+  useEffect(() => {
     if (!authLoading && !user) {
       navigate('/login');
     }
   }, [user, authLoading, navigate]);
+
+  // Fetch draws on mount
+  useEffect(() => {
+    if (user) {
+      fetchActiveDraw();
+      fetchDraws('completed', 10);
+    }
+  }, [user]);
 
   const handleEnterDraw = (drawId) => {
     setSelectedDrawId(drawId);
@@ -42,6 +54,15 @@ const Draw = () => {
       setShowEntryForm(false);
       setSuccessMessage('Entry submitted successfully! Good luck!');
       setTimeout(() => setSuccessMessage(''), 3000);
+      await fetchActiveDraw();
+      await fetchDraws('completed', 10);
+    }
+  };
+
+  const handleGenerateRandom = async () => {
+    const numbers = await generateRandomNumbers();
+    if (numbers) {
+      setRandomNumbers(numbers);
     }
   };
 
@@ -49,22 +70,15 @@ const Draw = () => {
     navigate(`/winners?drawId=${drawId}`);
   };
 
-  const handleGenerateRandom = async () => {
-    const numbers = await generateRandomNumbers();
-    if (numbers && selectedDrawId) {
-      await handleSubmitNumbers(numbers);
+  const handleExecuteDraw = (drawId) => {
+    if (window.confirm('Are you sure you want to execute this draw? This action cannot be undone.')) {
+      // This would call an admin API
+      alert('Draw execution would happen here (admin only)');
     }
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner fullScreen />;
   }
 
   return (
@@ -106,7 +120,7 @@ const Draw = () => {
               </button>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">Welcome, {user?.profile?.username || user?.email}</span>
+              <span className="text-sm text-gray-700">Welcome, {user?.profile?.username || user?.email?.split('@')[0]}</span>
             </div>
           </div>
         </div>
@@ -127,7 +141,7 @@ const Draw = () => {
           <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
             {/* Success Message */}
             {successMessage && (
-              <div className="mb-4 rounded-md bg-green-50 p-4">
+              <div className="mb-4 rounded-md bg-green-50 p-4 animate-fade-in">
                 <div className="flex">
                   <div className="flex-shrink-0">
                     <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -168,6 +182,7 @@ const Draw = () => {
                     onEnterDraw={handleEnterDraw}
                     onViewWinners={handleViewWinners}
                     isAdmin={user?.role === 'admin'}
+                    onExecuteDraw={handleExecuteDraw}
                   />
                 </div>
               )}
@@ -190,6 +205,7 @@ const Draw = () => {
                     <NumberPicker
                       onSubmit={handleSubmitNumbers}
                       loading={loading}
+                      initialNumbers={randomNumbers}
                     />
                     <div className="mt-4 text-center">
                       <button
@@ -212,7 +228,11 @@ const Draw = () => {
                   </div>
                 ) : draws.length === 0 ? (
                   <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                    <p className="text-gray-500">No draws available yet.</p>
+                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="mt-2 text-gray-500">No draws available yet.</p>
+                    <p className="text-sm text-gray-400">Check back soon for new draws!</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -224,6 +244,7 @@ const Draw = () => {
                         onEnterDraw={handleEnterDraw}
                         onViewWinners={handleViewWinners}
                         isAdmin={user?.role === 'admin'}
+                        onExecuteDraw={handleExecuteDraw}
                       />
                     ))}
                   </div>

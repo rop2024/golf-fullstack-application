@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useScores } from '../hooks/useScore';
+import { useScores } from '../hooks/useScores';
 import ScoreForm from '../components/ScoreForm';
 import ScoreList from '../components/ScoreList';
 import ScoreChart from '../components/ScoreChart';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
 
 const Scores = () => {
@@ -18,13 +19,15 @@ const Scores = () => {
     addScore,
     deleteScore,
     hasScores,
-    isMaxScores
+    isMaxScores,
+    fetchScores
   } = useScores();
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Redirect if not authenticated
-  React.useEffect(() => {
+  useEffect(() => {
     if (!authLoading && !user) {
       navigate('/login');
     }
@@ -33,6 +36,7 @@ const Scores = () => {
   const handleAddScore = async (value) => {
     const result = await addScore(value);
     if (result.success) {
+      setSuccessMessage(`Score ${value} added successfully!`);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     }
@@ -40,19 +44,17 @@ const Scores = () => {
 
   const handleDeleteScore = async (scoreId) => {
     if (window.confirm('Are you sure you want to delete this score?')) {
-      await deleteScore(scoreId);
+      const result = await deleteScore(scoreId);
+      if (result.success) {
+        setSuccessMessage('Score deleted successfully!');
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+      }
     }
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner fullScreen />;
   }
 
   return (
@@ -94,7 +96,7 @@ const Scores = () => {
               </button>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">Welcome, {user?.profile?.username || user?.email}</span>
+              <span className="text-sm text-gray-700">Welcome, {user?.profile?.username || user?.email?.split('@')[0]}</span>
             </div>
           </div>
         </div>
@@ -115,7 +117,7 @@ const Scores = () => {
           <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
             {/* Success Message */}
             {showSuccess && (
-              <div className="mb-4 rounded-md bg-green-50 p-4">
+              <div className="mb-4 rounded-md bg-green-50 p-4 animate-fade-in">
                 <div className="flex">
                   <div className="flex-shrink-0">
                     <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -123,7 +125,7 @@ const Scores = () => {
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-green-800">Score added successfully!</p>
+                    <p className="text-sm font-medium text-green-800">{successMessage}</p>
                   </div>
                 </div>
               </div>
@@ -183,6 +185,7 @@ const Scores = () => {
                   {/* Stats Summary */}
                   {hasScores && (
                     <div className="mt-4 bg-white rounded-lg shadow-md p-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-3">Score Summary</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs text-gray-500">Total Scores</p>
@@ -191,6 +194,14 @@ const Scores = () => {
                         <div>
                           <p className="text-xs text-gray-500">Total Points</p>
                           <p className="text-lg font-semibold text-gray-900">{stats.total}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Average</p>
+                          <p className="text-lg font-semibold text-gray-900">{stats.average}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Range</p>
+                          <p className="text-lg font-semibold text-gray-900">{stats.lowest} - {stats.highest}</p>
                         </div>
                       </div>
                     </div>
