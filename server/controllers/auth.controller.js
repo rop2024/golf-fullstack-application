@@ -1,95 +1,100 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import { supabaseAdmin, getUserProfile, updateUserProfile } from '../services/supabase.service.js';
 
-// Mock user database (replace with actual database in production)
-const users = [];
-
-export const register = async (req, res) => {
+export const getCurrentUser = async (req, res) => {
   try {
-    const { email, password, username } = req.body;
+    const { user } = req;
 
-    // Check if user exists
-    const existingUser = users.find(u => u.email === email);
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
-    }
+    // Get fresh profile data
+    const { profile, error } = await getUserProfile(user.id);
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
-    const user = {
-      id: users.length + 1,
-      email,
-      username,
-      password: hashedPassword,
-      role: "user",
-      createdAt: new Date()
-    };
-
-    users.push(user);
-
-    // Generate token
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.status(201).json({
-      message: "User created successfully",
-      token,
-      user: { id: user.id, email: user.email, username: user.username, role: user.role }
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Error creating user", error: error.message });
-  }
-};
-
-export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    // Find user
-    const user = users.find(u => u.email === email);
-    if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    // Generate token
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.json({
-      message: "Login successful",
-      token,
-      user: { id: user.id, email: user.email, username: user.username, role: user.role }
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Error logging in", error: error.message });
-  }
-};
-
-export const getMe = async (req, res) => {
-  try {
-    const user = users.find(u => u.id === req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    if (error && error !== 'PGRST116') {
+      return res.status(500).json({ message: 'Error fetching profile' });
     }
 
     res.json({
-      user: { id: user.id, email: user.email, username: user.username, role: user.role }
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        subscription_status: user.subscription_status,
+        profile: profile || null
+      }
     });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching user", error: error.message });
+    console.error('Get user error:', error);
+    res.status(500).json({ message: 'Error fetching user data' });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const updates = req.body;
+
+    // Remove fields that shouldn't be updated directly
+    delete updates.id;
+    delete updates.created_at;
+    delete updates.email;
+
+    const { profile, error } = await updateUserProfile(userId, updates);
+
+    if (error) {
+      return res.status(400).json({ message: error });
+    }
+
+    res.json({
+      message: 'Profile updated successfully',
+      profile
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Error updating profile' });
+  }
+};
+
+export const getUsers = async (req, res) => {
+  try {
+    // Only admins can access this
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    const { data: users, error } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({ users });
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ message: 'Error fetching users' });
+  }
+};
+
+export const updateUserRole = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+
+    // Only admins can update roles
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    const { profile, error } = await updateUserProfile(userId, { role });
+
+    if (error) {
+      return res.status(400).json({ message: error });
+    }
+
+    res.json({
+      message: 'User role updated successfully',
+      user: profile
+    });
+  } catch (error) {
+    console.error('Update user role error:', error);
+    res.status(500).json({ message: 'Error updating user role' });
   }
 };

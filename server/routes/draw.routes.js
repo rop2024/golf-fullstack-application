@@ -4,12 +4,12 @@ import {
   executeDraw,
   getDraws
 } from "../controllers/draw.controller.js";
-import { authenticateToken, authorizeAdmin } from "../middleware/auth.middleware.js";
+import { authenticateUser, authorizeAdmin } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/create", authenticateToken, authorizeAdmin, createDraw);
-router.post("/:drawId/execute", authenticateToken, authorizeAdmin, executeDraw);
-router.get("/", authenticateToken, getDraws);
+router.post("/create", authenticateUser, authorizeAdmin, createDraw);
+router.post("/:drawId/execute", authenticateUser, authorizeAdmin, executeDraw);
+router.get("/", authenticateUser, getDraws);
 
 export default router;
