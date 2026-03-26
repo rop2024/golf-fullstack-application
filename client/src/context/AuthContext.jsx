@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
       console.warn('Auth loading timeout - forcing loading to false');
       setLoading(false);
       setError('Loading timeout - please try refreshing the page');
-    }, 15000); // 15 seconds timeout
+    }, 45000); // 45 seconds timeout
     setLoadingTimeout(timeout);
   };
 
@@ -199,26 +199,8 @@ export const AuthProvider = ({ children }) => {
       if (signUpError) throw signUpError;
 
       if (authData.user) {
-        console.log('Signup successful, creating profile for user:', authData.user.id);
-        // Create profile in profiles table
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: authData.user.id,
-              email: email,
-              username: username,
-              subscription_status: 'free',
-              created_at: new Date().toISOString()
-            }
-          ]);
-
-        if (profileError) {
-          console.error('Error creating profile during signup:', profileError);
-          // Don't throw here, user still created
-        } else {
-          console.log('Profile created successfully during signup');
-        }
+        console.log('Signup successful, profile will be created by database trigger');
+        // Profile creation is handled by database trigger, no need to manually create here
 
         // Don't set user/session here - let the auth state change listener handle it
         return { success: true, user: authData.user };
