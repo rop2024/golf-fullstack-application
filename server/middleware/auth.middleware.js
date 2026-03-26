@@ -1,4 +1,4 @@
-import { verifySupabaseToken, getUserProfile } from '../services/supabase.service.js';
+import { verifySupabaseToken, getUserProfile, supabaseAdmin } from '../services/supabase.service.js';
 
 export const authenticateUser = async (req, res, next) => {
   try {
@@ -49,15 +49,20 @@ export const authenticateUser = async (req, res, next) => {
   }
 };
 
-export const authorizeAdmin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
-    next();
-  } else {
-    res.status(403).json({
-      message: 'Admin access required',
-      code: 'ADMIN_REQUIRED'
-    });
+export const authorizeAdmin = async (req, res, next) => {
+  const userId = req.user.id;
+
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .select('role')
+    .eq('id', userId)
+    .single();
+
+  if (error || data.role !== 'admin') {
+    return res.status(403).json({ message: 'Admin access required' });
   }
+
+  next();
 };
 
 export const authorizePremium = (req, res, next) => {
