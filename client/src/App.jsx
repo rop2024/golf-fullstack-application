@@ -24,6 +24,7 @@ const Winners = React.lazy(() => import('./pages/Winners'))
 const Subscription = React.lazy(() => import('./pages/Subscription'))
 const Settings = React.lazy(() => import('./pages/Settings'))
 const Admin = React.lazy(() => import('./pages/Admin'))
+const AdminLogin = React.lazy(() => import('./pages/AdminLogin'))
 const Success = React.lazy(() => import('./pages/Success'))
 const Cancel = React.lazy(() => import('./pages/Cancel'))
 
@@ -54,7 +55,8 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/success" element={<Success />} />
             <Route path="/cancel" element={<Cancel />} />
-            <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminGuard><Admin /></AdminGuard>} />
           </Routes>
         </Suspense>
       </Router>

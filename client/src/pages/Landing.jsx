@@ -9,11 +9,8 @@ const Landing = () => {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [signupData, setSignupData] = useState({ username: '', email: '', password: '', confirmPassword: '' });
-  const [adminLoginData, setAdminLoginData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
-  const [adminError, setAdminError] = useState('');
-  const [adminLoading, setAdminLoading] = useState(false);
   const [loginTimeout, setLoginTimeout] = useState(null);
   const { signIn, signUp, error, loading, user } = useAuth();
 
@@ -32,7 +29,7 @@ const Landing = () => {
     if (user && !loading) {
       // Check if user is admin and redirect accordingly
       const isAdmin = user.profile?.role === 'admin';
-      navigate(isAdmin ? '/admin' : '/dashboard');
+      navigate(isAdmin ? '/admin/dashboard' : '/dashboard');
     }
   }, [user, loading, navigate]);
 
@@ -55,9 +52,7 @@ const Landing = () => {
     setIsModalOpen(false);
     setLoginData({ email: '', password: '' });
     setSignupData({ username: '', email: '', password: '', confirmPassword: '' });
-    setAdminLoginData({ email: '', password: '' });
     setPasswordError('');
-    setAdminError('');
     if (loginTimeout) {
       clearTimeout(loginTimeout);
       setLoginTimeout(null);
@@ -97,28 +92,6 @@ const Landing = () => {
       clearTimeout(timeoutId);
       setLoginTimeout(null);
       console.error('Login error:', err);
-    }
-  };
-
-  const handleAdminLogin = async (e) => {
-    e.preventDefault();
-    setAdminError('');
-    setAdminLoading(true);
-
-    try {
-      const result = await signIn(adminLoginData.email, adminLoginData.password);
-      if (result.success) {
-        // Clear form
-        setAdminLoginData({ email: '', password: '' });
-        // Redirect will happen automatically via useEffect
-      } else {
-        setAdminError('Invalid admin credentials');
-      }
-    } catch (err) {
-      console.error('Admin login error:', err);
-      setAdminError('Admin login failed. Please check your credentials.');
-    } finally {
-      setAdminLoading(false);
     }
   };
 
@@ -191,84 +164,6 @@ const Landing = () => {
                 {num}
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Admin Login Section */}
-      <section className="relative py-16 px-4 sm:px-6 lg:px-8 bg-gray-800">
-        {/* Top transition blur */}
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-gray-800/60 via-gray-800/20 to-transparent backdrop-blur-sm"></div>
-        {/* Bottom transition blur */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent via-gray-800/20 to-gray-800/60 backdrop-blur-sm"></div>
-        <div className="max-w-md mx-auto relative z-10">
-          <div className="bg-gray-700 p-8 rounded-lg shadow-lg border border-gray-600">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="material-icons text-white text-2xl">admin_panel_settings</span>
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Admin Access</h2>
-              <p className="text-gray-400 text-sm">System administrators only</p>
-            </div>
-
-            <form onSubmit={handleAdminLogin} className="space-y-4">
-              <div>
-                <label htmlFor="admin-email" className="block text-sm font-medium text-gray-300 mb-1">
-                  Admin Email
-                </label>
-                <input
-                  id="admin-email"
-                  type="email"
-                  required
-                  className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  placeholder="admin@example.com"
-                  value={adminLoginData.email}
-                  onChange={(e) => setAdminLoginData({ ...adminLoginData, email: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="admin-password" className="block text-sm font-medium text-gray-300 mb-1">
-                  Password
-                </label>
-                <input
-                  id="admin-password"
-                  type="password"
-                  required
-                  className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  placeholder="Enter admin password"
-                  value={adminLoginData.password}
-                  onChange={(e) => setAdminLoginData({ ...adminLoginData, password: e.target.value })}
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={adminLoading}
-                className="w-full py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-800 text-white font-semibold rounded-md transition duration-200 flex items-center justify-center"
-              >
-                {adminLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Signing In...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-icons mr-2 text-sm">login</span>
-                    Admin Login
-                  </>
-                )}
-              </button>
-            </form>
-
-            {adminError && (
-              <div className="mt-4 p-3 bg-red-900 border border-red-700 text-red-200 rounded-md text-sm">
-                <div className="flex items-center">
-                  <span className="material-icons mr-2 text-sm">error</span>
-                  {adminError}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </section>
