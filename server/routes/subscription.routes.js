@@ -4,13 +4,15 @@ import {
   upgradeSubscription,
   cancelSubscription,
   getBalance,
-  getDashboardData
+  getDashboardData,
+  createSubscription
 } from '../controllers/subscription.controller.js';
 import { authenticateUser } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
 // Protected routes
+router.post('/create', authenticateUser, createSubscription);
 router.get('/my-subscription', authenticateUser, getSubscription);
 router.post('/upgrade', authenticateUser, upgradeSubscription);
 router.post('/cancel', authenticateUser, cancelSubscription);

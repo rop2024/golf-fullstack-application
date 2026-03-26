@@ -23,6 +23,26 @@ DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS balance DECIMAL(10,2) DEFAULT 0.00;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin'));
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS subscription_expires_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT;
+
+-- Create subscriptions table
+CREATE TABLE IF NOT EXISTS public.subscriptions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  stripe_subscription_id TEXT,
+  plan TEXT NOT NULL CHECK (plan IN ('monthly', 'yearly')),
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'lapsed')),
+  start_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  end_date TIMESTAMP WITH TIME ZONE,
+  stripe_customer_id TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create index on user_id for faster queries
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON public.subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe_subscription_id ON public.subscriptions(stripe_subscription_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe_customer_id ON public.subscriptions(stripe_customer_id);
 
 -- Fix username column to be NOT NULL and UNIQUE
 ALTER TABLE public.profiles ALTER COLUMN username SET NOT NULL;
@@ -72,6 +92,19 @@ CREATE POLICY "Draw creators can update their draws" ON public.draws
 -- Recreate winners policies (without role dependency)
 CREATE POLICY "Anyone can view winners" ON public.winners
   FOR SELECT TO authenticated USING (true);
+
+-- Subscriptions table policies
+CREATE POLICY "Users can view own subscriptions" ON public.subscriptions
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own subscriptions" ON public.subscriptions
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own subscriptions" ON public.subscriptions
+  FOR UPDATE USING (auth.uid() = user_id);
+
+-- Enable RLS on subscriptions table
+ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 
 -- Recreate trigger
 CREATE TRIGGER update_profiles_updated_at

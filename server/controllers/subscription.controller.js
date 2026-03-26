@@ -5,6 +5,8 @@ import {
   updateUserBalance,
   getDashboardStats
 } from '../services/supabase.service.js';
+import { supabaseAdmin } from '../services/supabase.service.js';
+import stripe from '../config/stripe.js';
 
 // Get user's subscription
 export const getSubscription = async (req, res) => {
@@ -150,5 +152,54 @@ export const getDashboardData = async (req, res) => {
       message: 'Error fetching dashboard data',
       code: 'SERVER_ERROR'
     });
+  }
+};
+
+// Create subscription checkout session
+export const createSubscription = async (req, res) => {
+  try {
+    const user = req.user; // from Supabase JWT
+    const { priceId } = req.body;
+
+    // 1. Create customer in Stripe
+    const customer = await stripe.customers.create({
+      email: user.email,
+    });
+
+    // 2. Store customer ID in database
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .update({
+        stripe_customer_id: customer.id,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error storing customer ID:', error);
+      // Continue anyway, but log the error
+    }
+
+    // 3. Create checkout session
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      customer: customer.id,
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      success_url: "http://localhost:5173/success",
+      cancel_url: "http://localhost:5173/cancel",
+    });
+
+    res.json({ url: session.url });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

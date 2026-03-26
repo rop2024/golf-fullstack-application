@@ -720,6 +720,96 @@ export const updateSubscription = async (userId, status, expiresAt = null) => {
   }
 };
 
+// Get user's subscription history
+export const getUserSubscriptions = async (userId) => {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return { subscriptions: data, error: null };
+  } catch (error) {
+    console.error('Get user subscriptions error:', error);
+    return { subscriptions: null, error: error.message };
+  }
+};
+
+// Create subscription record
+export const createSubscriptionRecord = async (subscriptionData) => {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('subscriptions')
+      .insert(subscriptionData)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return { subscription: data, error: null };
+  } catch (error) {
+    console.error('Create subscription record error:', error);
+    return { subscription: null, error: error.message };
+  }
+};
+
+// Update subscription record
+export const updateSubscriptionRecord = async (subscriptionId, updates, stripeSubscriptionId = null) => {
+  try {
+    let query = supabaseAdmin
+      .from('subscriptions')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      });
+
+    if (stripeSubscriptionId) {
+      query = query.eq('stripe_subscription_id', stripeSubscriptionId);
+    } else {
+      query = query.eq('id', subscriptionId);
+    }
+
+    const { data, error } = await query.select().single();
+
+    if (error) throw error;
+
+    return { subscription: data, error: null };
+  } catch (error) {
+    console.error('Update subscription record error:', error);
+    return { subscription: null, error: error.message };
+  }
+};
+
+// Cancel user subscription
+export const cancelUserSubscription = async (userId) => {
+  try {
+    // Update the latest active subscription to cancelled
+    const { data, error } = await supabaseAdmin
+      .from('subscriptions')
+      .update({
+        status: 'cancelled',
+        end_date: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return { subscription: data, error: null };
+  } catch (error) {
+    console.error('Cancel user subscription error:', error);
+    return { subscription: null, error: error.message };
+  }
+};
+
 // Get user's balance
 export const getUserBalance = async (userId) => {
   try {
