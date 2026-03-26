@@ -12,7 +12,7 @@ const Landing = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [loginTimeout, setLoginTimeout] = useState(null);
-  const { signIn, signUp, error, loading, user } = useAuth();
+  const { signIn, signUp, error, loading, profileLoading, user } = useAuth();
 
   // Check for modal parameter on mount
   useEffect(() => {
@@ -26,12 +26,12 @@ const Landing = () => {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (user && !loading) {
+    if (user && !loading && !profileLoading) {
       // Check if user is admin and redirect accordingly
       const isAdmin = user.profile?.role === 'admin';
       navigate(isAdmin ? '/admin/dashboard' : '/dashboard');
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, profileLoading, navigate]);
 
   // Clear timeout on unmount
   useEffect(() => {

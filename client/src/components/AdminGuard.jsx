@@ -3,9 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from './LoadingSpinner';
 
 const AdminGuard = ({ children, fallback = null }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, profileLoading } = useAuth();
 
-  if (loading) {
+  if (loading || profileLoading) {
     return <LoadingSpinner />;
   }
 

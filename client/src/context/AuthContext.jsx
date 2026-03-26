@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [error, setError] = useState(null);
   const [loadingTimeout, setLoadingTimeout] = useState(null);
 
@@ -126,6 +127,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserProfile = async (userId) => {
     try {
+      setProfileLoading(true);
       console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
@@ -176,6 +178,8 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error('Error in fetchUserProfile:', err);
       // Don't throw error, just log it
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -294,6 +298,7 @@ export const AuthProvider = ({ children }) => {
     user,
     session,
     loading,
+    profileLoading,
     error,
     signUp,
     signIn,

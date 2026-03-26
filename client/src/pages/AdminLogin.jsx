@@ -8,17 +8,17 @@ const AdminLogin = () => {
   const [adminLoginData, setAdminLoginData] = useState({ email: '', password: '' });
   const [adminError, setAdminError] = useState('');
   const [adminLoading, setAdminLoading] = useState(false);
-  const { signIn, user, loading } = useAuth();
+  const { signIn, user, loading, profileLoading } = useAuth();
 
   // Redirect if already authenticated as admin
   useEffect(() => {
-    if (user && !loading) {
+    if (user && !loading && !profileLoading) {
       const isAdmin = user.profile?.role === 'admin';
       if (isAdmin) {
         navigate('/admin/dashboard', { replace: true });
       }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, profileLoading, navigate]);
 
   const handleAdminLogin = async (e) => {
     e.preventDefault();
