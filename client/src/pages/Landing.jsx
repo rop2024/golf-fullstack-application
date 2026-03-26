@@ -27,7 +27,9 @@ const Landing = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (user && !loading) {
-      navigate('/dashboard');
+      // Check if user is admin and redirect accordingly
+      const isAdmin = user.profile?.role === 'admin';
+      navigate(isAdmin ? '/admin' : '/dashboard');
     }
   }, [user, loading, navigate]);
 
@@ -81,7 +83,7 @@ const Landing = () => {
         clearTimeout(timeoutId);
         setLoginTimeout(null);
         closeModal();
-        navigate('/dashboard');
+        // Don't redirect here - let the useEffect handle role-based redirect
       } else {
         clearTimeout(timeoutId);
         setLoginTimeout(null);
@@ -113,7 +115,7 @@ const Landing = () => {
     const result = await signUp(signupData.email, signupData.password, signupData.username);
     if (result.success) {
       closeModal();
-      navigate('/dashboard');
+      // Don't redirect here - let the useEffect handle role-based redirect
     }
   };
 
