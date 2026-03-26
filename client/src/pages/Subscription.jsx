@@ -26,6 +26,19 @@ const Subscription = () => {
   const [selectedDuration, setSelectedDuration] = useState('monthly');
   const [processing, setProcessing] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [stripeError, setStripeError] = useState('');
+
+  // Price IDs from environment
+  const priceIds = {
+    premium: {
+      monthly: import.meta.env.VITE_STRIPE_PRICE_PREMIUM_MONTHLY,
+      yearly: import.meta.env.VITE_STRIPE_PRICE_PREMIUM_YEARLY
+    },
+    pro: {
+      monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY,
+      yearly: import.meta.env.VITE_STRIPE_PRICE_PRO_YEARLY
+    }
+  };
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -44,6 +57,35 @@ const Subscription = () => {
       await fetchBalance();
     }
     setProcessing(false);
+  };
+
+  const subscribe = async (priceId) => {
+    setProcessing(true);
+    setStripeError(''); // Clear any previous errors
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/subscription/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ priceId }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        setStripeError(data.error || 'Failed to create subscription');
+      }
+    } catch (err) {
+      setStripeError('Failed to create subscription');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const handleCancel = async () => {
@@ -170,7 +212,7 @@ const Subscription = () => {
             )}
 
             {/* Error Message */}
-            {error && (
+            {(error || stripeError) && (
               <div className="mb-4 rounded-md bg-red-50 p-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
@@ -179,7 +221,7 @@ const Subscription = () => {
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-red-800">{error}</p>
+                    <p className="text-sm font-medium text-red-800">{error || stripeError}</p>
                   </div>
                 </div>
               </div>
@@ -293,14 +335,11 @@ const Subscription = () => {
                           </button>
                         ) : key !== 'free' ? (
                           <button
-                            onClick={() => {
-                              setSelectedPlan(key);
-                              handleUpgrade();
-                            }}
+                            onClick={() => subscribe(priceIds[key][selectedDuration])}
                             disabled={processing}
                             className="mt-8 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                           >
-                            {processing && selectedPlan === key ? 'Processing...' : `Upgrade to ${plan.name}`}
+                            {processing ? 'Processing...' : `Subscribe to ${plan.name}`}
                           </button>
                         ) : (
                           <button

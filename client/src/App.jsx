@@ -24,6 +24,8 @@ const Winners = React.lazy(() => import('./pages/Winners'))
 const Subscription = React.lazy(() => import('./pages/Subscription'))
 const Settings = React.lazy(() => import('./pages/Settings'))
 const Admin = React.lazy(() => import('./pages/Admin'))
+const Success = React.lazy(() => import('./pages/Success'))
+const Cancel = React.lazy(() => import('./pages/Cancel'))
 
 function App() {
   console.log('[Client] App component rendering...');
@@ -50,6 +52,8 @@ function App() {
             <Route path="/winners" element={<Winners />} />
             <Route path="/subscription" element={<Subscription />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/success" element={<Success />} />
+            <Route path="/cancel" element={<Cancel />} />
             <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
           </Routes>
         </Suspense>
