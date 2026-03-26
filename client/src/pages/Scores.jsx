@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Navbar from '../components/Navbar';
 import ScoreForm from '../components/ScoreForm';
 import ScoreList from '../components/ScoreList';
 import ScoreChart from '../components/ScoreChart';
@@ -11,39 +12,18 @@ const Scores = () => {
   const { user, logout } = useAuth();
   const { scores, stats, loading, error, remainingSlots, plan, features, addScore, deleteScore } = useScores();
 
-  const [greeting, setGreeting] = useState('');
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  useEffect(() => {
-    // Set greeting based on time of day
-    const hour = new Date().getHours();
-    if (hour >= 6 && hour < 12) setGreeting('Good Morning');
-    else if (hour >= 12 && hour < 18) setGreeting('Good Afternoon');
-    else setGreeting('Good Evening');
-  }, []);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownOpen && !event.target.closest('.user-dropdown')) {
-        setDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [dropdownOpen]);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
 
   const handleAddScore = async (value) => {
     const result = await addScore(value);
     if (!result.success) {
-      // Error handling can be added here
-      console.error(result.error);
+      if (result.requiresUpgrade) {
+        setShowUpgradePrompt(true);
+        // Auto-hide the prompt after 5 seconds
+        setTimeout(() => setShowUpgradePrompt(false), 5000);
+      } else {
+        console.error(result.error);
+      }
     }
   };
 
@@ -64,108 +44,7 @@ const Scores = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Navigation Bar */}
-      <nav className="relative bg-gray-800 shadow-lg border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex justify-between h-16">
-            <div className="flex space-x-8">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={() => navigate('/scores')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-white text-sm font-medium text-white"
-              >
-                Scores
-              </button>
-              <button
-                onClick={() => navigate('/draw')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Draw
-              </button>
-              <button
-                onClick={() => navigate('/winners')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Winners
-              </button>
-              <button
-                onClick={() => navigate('/subscription')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Subscription
-              </button>
-            </div>
-            <div className="flex items-center space-x-4">
-              {/* User Dropdown */}
-              <div className="relative user-dropdown">
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                >
-                  <span className="material-icons text-gray-300">person</span>
-                </button>
-
-                {/* Dropdown Menu */}
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50">
-                    {/* User Info Header */}
-                    <div className="px-4 py-3 border-b border-gray-700">
-                      <p className="text-sm font-medium text-white">
-                        {user?.profile?.username || user?.email?.split('@')[0]}
-                      </p>
-                      <p className="text-xs text-gray-400">{user?.email}</p>
-                      <p className="text-xs text-gray-500 mt-1">{greeting}!</p>
-                    </div>
-
-                    {/* Menu Items */}
-                    <div className="py-2">
-                      <button
-                        onClick={() => {
-                          setDropdownOpen(false);
-                          navigate('/settings');
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200 flex items-center"
-                      >
-                        <span className="material-icons text-base mr-3">person</span>
-                        Profile Settings
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setDropdownOpen(false);
-                          navigate('/subscription');
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200 flex items-center"
-                      >
-                        <span className="material-icons text-base mr-3">credit_card</span>
-                        Subscription
-                      </button>
-
-                      <div className="border-t border-gray-700 my-1"></div>
-
-                      <button
-                        onClick={() => {
-                          setDropdownOpen(false);
-                          handleLogout();
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition duration-200 flex items-center"
-                      >
-                        <span className="material-icons text-base mr-3">logout</span>
-                        Sign Out
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar activePage="scores" />
 
       {/* Main Content */}
       <div className="py-20">
@@ -177,6 +56,29 @@ const Scores = () => {
             </p>
           </div>
         </header>
+
+        {/* Upgrade Prompt Notification */}
+        {showUpgradePrompt && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+            <div className="bg-gradient-to-r from-amber-900 to-orange-900 border border-amber-600 rounded-lg p-4 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <span className="material-icons text-amber-400 mr-3">warning</span>
+                  <div>
+                    <h4 className="text-white font-semibold">Free Plan Limit Reached</h4>
+                    <p className="text-amber-200 text-sm">You've reached the 5-score limit. Upgrade to Premium for unlimited scores and advanced features.</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleUpgradeClick}
+                  className="bg-white text-amber-900 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-lg text-sm"
+                >
+                  Upgrade Now
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <main className="relative">
           <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -218,10 +120,30 @@ const Scores = () => {
                   <ScoreForm onSubmit={handleAddScore} loading={loading} />
                 </div>
 
-                {/* Score Statistics */}
-                <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
-                  <ScoreChart scores={scores} />
-                </div>
+                {/* Score Statistics - Only for subscribers */}
+                {features?.canViewStats ? (
+                  <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+                    <ScoreChart scores={scores} />
+                  </div>
+                ) : (
+                  <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+                    <div className="text-center py-8">
+                      <div className="text-6xl mb-4 text-indigo-400">
+                        <span className="material-icons">analytics</span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">Advanced Analytics</h3>
+                      <p className="text-gray-300 text-sm mb-4">
+                        Unlock detailed score statistics, charts, and insights with a premium subscription.
+                      </p>
+                      <button
+                        onClick={handleUpgradeClick}
+                        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105"
+                      >
+                        Upgrade to Premium
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Your Scores */}
@@ -234,7 +156,10 @@ const Scores = () => {
                 <div className="bg-gradient-to-r from-indigo-900 to-purple-900 rounded-lg shadow-lg border border-indigo-700 p-6 mt-8">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-2">🚀 Unlock Premium Features</h3>
+                      <h3 className="text-xl font-bold text-white mb-2 flex items-center">
+                        <span className="material-icons text-purple-400 mr-2">rocket_launch</span>
+                        Unlock Premium Features
+                      </h3>
                       <ul className="text-gray-300 text-sm space-y-1 mb-4">
                         <li>✓ Unlimited score submissions</li>
                         <li>✓ Advanced statistics & analytics</li>

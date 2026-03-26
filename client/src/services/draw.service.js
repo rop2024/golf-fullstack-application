@@ -8,7 +8,7 @@ const drawService = {
       if (status) params.status = status;
       if (limit) params.limit = limit;
       
-      const response = await api.get('/draws', { params });
+      const response = await api.get('/draw', { params });
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -21,7 +21,7 @@ const drawService = {
   // Get draw by ID
   getDrawById: async (drawId) => {
     try {
-      const response = await api.get(`/draws/${drawId}`);
+      const response = await api.get(`/draw/${drawId}`);
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -34,7 +34,7 @@ const drawService = {
   // Get latest draw
   getLatestDraw: async () => {
     try {
-      const response = await api.get('/draws/latest');
+      const response = await api.get('/draw/latest');
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -47,7 +47,7 @@ const drawService = {
   // Get active draw
   getActiveDraw: async () => {
     try {
-      const response = await api.get('/draws/active');
+      const response = await api.get('/draw/active');
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -60,7 +60,7 @@ const drawService = {
   // Submit entry to draw
   submitEntry: async (drawId, numbers) => {
     try {
-      const response = await api.post(`/draws/${drawId}/entry`, { numbers });
+      const response = await api.post(`/draw/${drawId}/entry`, { numbers });
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -73,7 +73,7 @@ const drawService = {
   // Get user's draw entries
   getUserEntries: async (limit = 10) => {
     try {
-      const response = await api.get('/draws/my/entries', { params: { limit } });
+      const response = await api.get('/draw/my/entries', { params: { limit } });
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -86,7 +86,7 @@ const drawService = {
   // Get user's winnings
   getUserWinnings: async () => {
     try {
-      const response = await api.get('/draws/my/winnings');
+      const response = await api.get('/draw/my/winnings');
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -99,7 +99,7 @@ const drawService = {
   // Claim prize
   claimPrize: async (winnerId) => {
     try {
-      const response = await api.post(`/draws/winners/${winnerId}/claim`);
+      const response = await api.post(`/draw/winners/${winnerId}/claim`);
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -112,7 +112,7 @@ const drawService = {
   // Get draw winners
   getDrawWinners: async (drawId) => {
     try {
-      const response = await api.get(`/draws/${drawId}/winners`);
+      const response = await api.get(`/draw/${drawId}/winners`);
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -125,7 +125,7 @@ const drawService = {
   // Get draw statistics
   getDrawStats: async () => {
     try {
-      const response = await api.get('/draws/stats');
+      const response = await api.get('/draw/stats');
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -138,7 +138,7 @@ const drawService = {
   // Generate random numbers
   generateRandomNumbers: async () => {
     try {
-      const response = await api.get('/draws/random-numbers');
+      const response = await api.get('/draw/random-numbers');
       return { success: true, data: response.data };
     } catch (error) {
       return { 

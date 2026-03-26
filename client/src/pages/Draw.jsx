@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useDraw } from '../hooks/useDraw';
 import { useSubscription } from '../hooks/useSubscription';
+import Navbar from '../components/Navbar';
 import NumberPicker from '../components/NumberPicker';
 import DrawCard from '../components/DrawCard';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -28,6 +29,7 @@ const Draw = () => {
   const {
     isActive,
     isPremium,
+    isPro,
     getFeatureLimit,
     canPerformAction
   } = useSubscription();
@@ -93,50 +95,7 @@ const Draw = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Navigation Bar */}
-      <nav className="relative bg-gray-800 shadow-lg border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex justify-between h-16">
-            <div className="flex space-x-8">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={() => navigate('/scores')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Scores
-              </button>
-              <button
-                onClick={() => navigate('/draw')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-white text-sm font-medium text-white"
-              >
-                Draw
-              </button>
-              <button
-                onClick={() => navigate('/winners')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Winners
-              </button>
-              <button
-                onClick={() => navigate('/subscription')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Subscription
-              </button>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-300">
-                Plan: <span className="font-semibold capitalize">{isPremium ? 'Premium' : 'Free'}</span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar activePage="draw" />
 
       {/* Main Content */}
       <div className="py-10">

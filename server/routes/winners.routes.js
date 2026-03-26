@@ -1,4 +1,5 @@
 import express from 'express';
+import { supabaseAdmin } from '../services/supabase.service.js';
 import {
   getDrawWinners,
   getUserWinnings,
@@ -30,17 +31,39 @@ router.get('/draw/:drawId/distribution', authenticateUser, getPrizeDistribution)
 
 // Admin only routes
 router.get('/admin/all', authenticateUser, authorizeAdmin, async (req, res) => {
-  // This would be an admin endpoint to view all winners
   try {
     const { data, error } = await supabaseAdmin
-      .from('winners_view')
-      .select('*')
+      .from('winners')
+      .select(`
+        *,
+        profiles:user_id (
+          username
+        ),
+        draws:draw_id (
+          title,
+          prize
+        )
+      `)
       .order('created_at', { ascending: false });
-    
+
     if (error) throw error;
-    
-    res.json({ winners: data });
+
+    // Transform the data to match expected format
+    const winners = data.map(winner => ({
+      id: winner.id,
+      draw_id: winner.draw_id,
+      user_id: winner.user_id,
+      username: winner.profiles?.username || 'Unknown',
+      prize: winner.prize,
+      prize_amount: parseFloat(winner.prize.replace('$', '')) || 0,
+      matches_count: 1, // Default since we don't have this in basic winners table
+      claimed: true, // Assume claimed for now
+      created_at: winner.won_at
+    }));
+
+    res.json({ winners });
   } catch (error) {
+    console.error('Admin get all winners error:', error);
     res.status(500).json({ message: error.message });
   }
 });

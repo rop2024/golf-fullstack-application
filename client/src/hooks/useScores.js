@@ -16,33 +16,6 @@ export const useScores = () => {
   const [plan, setPlan] = useState('free');
   const [features, setFeatures] = useState(null);
 
-  // Fetch scores
-  const fetchScores = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    
-    const result = await scoreService.getMyScores();
-    
-    if (result.success) {
-      setScores(result.data.scores);
-      setRemainingSlots(result.data.remaining_slots);
-      setPlan(result.data.plan);
-      setFeatures(result.data.features);
-      
-      // Use server-provided stats if available, otherwise calculate locally
-      if (result.data.stats) {
-        setStats(result.data.stats);
-      } else {
-        const calculatedStats = calculateStats(result.data.scores);
-        setStats(calculatedStats);
-      }
-    } else {
-      setError(result.error);
-    }
-    
-    setLoading(false);
-  }, [calculateStats]);
-
   // Calculate stats from scores array
   const calculateStats = useCallback((scoresArray) => {
     if (scoresArray.length === 0) {
@@ -70,10 +43,58 @@ export const useScores = () => {
     };
   }, []);
 
+  // Fetch scores
+  const fetchScores = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    
+    const result = await scoreService.getMyScores();
+    
+    if (result.success) {
+      setScores(result.data.scores);
+      setRemainingSlots(result.data.remaining_slots);
+      setPlan(result.data.plan);
+      setFeatures(result.data.features);
+      
+      // Use server-provided stats if available, otherwise calculate locally
+      if (result.data.stats) {
+        setStats(result.data.stats);
+      } else {
+        const calculatedStats = calculateStats(result.data.scores);
+        setStats(calculatedStats);
+      }
+    } else {
+      setError(result.error);
+    }
+    
+    setLoading(false);
+  }, [calculateStats]);
+
   // Add a new score
   const addScore = useCallback(async (value) => {
     setLoading(true);
     setError(null);
+    
+    // Check if free user has reached the limit
+    if (plan === 'free' && scores.length >= 5) {
+      setLoading(false);
+      return { 
+        success: false, 
+        error: 'Free plan limit reached. Upgrade to Premium for unlimited scores and advanced features.',
+        requiresUpgrade: true
+      };
+    }
+    
+    // If we already have 5 scores, delete the oldest (last in the array since ordered by newest first) one first
+    if (scores.length >= 5) {
+      const oldestScore = scores[scores.length - 1];
+      const deleteResult = await scoreService.deleteScore(oldestScore.id);
+      if (!deleteResult.success) {
+        setError(deleteResult.error);
+        setLoading(false);
+        return { success: false, error: deleteResult.error };
+      }
+    }
     
     const result = await scoreService.addScore(value);
     
@@ -94,7 +115,7 @@ export const useScores = () => {
       setLoading(false);
       return { success: false, error: result.error };
     }
-  }, [plan, features, calculateStats]);
+  }, [scores, plan, features, calculateStats]);
 
   // Delete a score
   const deleteScore = useCallback(async (scoreId) => {

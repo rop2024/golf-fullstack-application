@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useWinners } from '../hooks/useWinners';
+import Navbar from '../components/Navbar';
 import WinnerCard from '../components/WinnerCard';
 import PrizeDistribution from '../components/PrizeDistribution';
 import WinnerCelebration from '../components/WinnerCelebration';
@@ -80,48 +81,7 @@ const Winners = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Navigation Bar */}
-      <nav className="relative bg-gray-800 shadow-lg border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex justify-between h-16">
-            <div className="flex space-x-8">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={() => navigate('/scores')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Scores
-              </button>
-              <button
-                onClick={() => navigate('/draw')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Draw
-              </button>
-              <button
-                onClick={() => navigate('/winners')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-white text-sm font-medium text-white"
-              >
-                Winners
-              </button>
-              <button
-                onClick={() => navigate('/subscription')}
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-300 hover:text-white hover:border-white/50"
-              >
-                Subscription
-              </button>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-300">Welcome, {user?.profile?.username || user?.email}</span>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar activePage="winners" />
 
       {/* Main Content */}
       <div className="py-10">
@@ -138,15 +98,13 @@ const Winners = () => {
           <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
             {/* Error Message */}
             {error && (
-              <div className="mb-4 rounded-md bg-red-50 p-4">
+              <div className="mb-4 rounded-md bg-red-900 border border-red-700 p-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
+                    <span className="material-icons text-red-400">error</span>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-red-800">{error}</p>
+                    <p className="text-sm font-medium text-red-200">{error}</p>
                   </div>
                 </div>
               </div>
@@ -266,13 +224,13 @@ const Winners = () => {
                             <div className="flex items-center space-x-4">
                               <div className="flex-shrink-0">
                                 {index === 0 && (
-                                  <span className="text-3xl">🥇</span>
+                                  <span className="material-icons text-yellow-500 text-3xl">emoji_events</span>
                                 )}
                                 {index === 1 && (
-                                  <span className="text-3xl">🥈</span>
+                                  <span className="material-icons text-gray-400 text-3xl">military_tech</span>
                                 )}
                                 {index === 2 && (
-                                  <span className="text-3xl">🥉</span>
+                                  <span className="material-icons text-amber-600 text-3xl">workspace_premium</span>
                                 )}
                                 {index > 2 && (
                                   <span className="text-xl font-bold text-gray-500">#{index + 1}</span>

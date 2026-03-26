@@ -51,11 +51,11 @@ const WinnerCelebration = ({ show, onClose, prizeAmount, matchCount }) => {
   if (!isVisible) return null;
 
   const getMessage = () => {
-    if (matchCount === 5) return "JACKPOT WINNER! 🏆💰🎉";
-    if (matchCount === 4) return "MAJOR WINNER! 🎉🏆";
-    if (matchCount === 3) return "Great Win! 🎊✨";
-    if (matchCount === 2) return "You're a Winner! 🎯";
-    return "Congratulations! 🎉";
+    if (matchCount === 5) return "JACKPOT WINNER!";
+    if (matchCount === 4) return "MAJOR WINNER!";
+    if (matchCount === 3) return "Great Win!";
+    if (matchCount === 2) return "You're a Winner!";
+    return "Congratulations!";
   };
 
   return (
@@ -100,9 +100,10 @@ const WinnerCelebration = ({ show, onClose, prizeAmount, matchCount }) => {
           
           <button
             onClick={handleClose}
-            className="px-6 py-2 bg-white text-yellow-600 rounded-md font-semibold hover:bg-gray-100 transition"
+            className="px-6 py-2 bg-white text-yellow-600 rounded-md font-semibold hover:bg-gray-100 transition flex items-center"
           >
-            Awesome! 🎉
+            <span className="material-icons mr-2">celebration</span>
+            Awesome!
           </button>
         </div>
       </div>

@@ -15,15 +15,15 @@ const WinnerCard = ({ winner, onClaim, showClaimButton = true }) => {
   };
 
   const getMatchCountEmoji = (matchCount) => {
-    const emojis = {
-      5: '🏆💰🎉',
+    const icons = {
+      5: '⭐💰🎉',
       4: '🎉🏆',
       3: '🎊✨',
       2: '🎯👍',
       1: '😊',
       0: '😢'
     };
-    return emojis[matchCount] || emojis[0];
+    return icons[matchCount] || icons[0];
   };
 
   const getStatusBadge = (status) => {
@@ -43,7 +43,17 @@ const WinnerCard = ({ winner, onClaim, showClaimButton = true }) => {
                 {winner.match_count} Matches {getMatchCountEmoji(winner.match_count)}
               </span>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(winner.status)}`}>
-                {winner.status === 'claimed' ? '✓ Claimed' : '💰 Pending'}
+                {winner.status === 'claimed' ? (
+                  <>
+                    <span className="material-icons text-xs mr-1">check_circle</span>
+                    Claimed
+                  </>
+                ) : (
+                  <>
+                    <span className="material-icons text-xs mr-1">schedule</span>
+                    Pending
+                  </>
+                )}
               </span>
             </div>
             <p className="mt-2 text-sm text-gray-500">
